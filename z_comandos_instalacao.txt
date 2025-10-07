@@ -1,0 +1,10 @@
+
+Depois de instalar o sistema é necessario usar os seguinte comandos: 
+- cp .eve.example .env (Para copiar o codigo do arquivo .env.example e poder cofigurar a BD)
+- Composer install ( instalar todas depencias no vendor necessarias para o projecto.)
+- php artisan key:generate (criar chave de segurança )
+- php artisan migrate (executar as tabelas)
+- php artisan db:seed (Executar o user padrão)
+- npm run build (executar os estilos vite usados na tela de login e register)
+
+

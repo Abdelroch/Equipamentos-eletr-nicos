@@ -1,0 +1,9 @@
+body {
+    background-color: #f4f6f9; /* Cor personalizada */
+}
+.navbar {
+    background-color: #c5c5c5; /* Navbar azul */
+}
+.sidebar {
+    background: linear-gradient(180deg, #343a40, #495057);
+}
