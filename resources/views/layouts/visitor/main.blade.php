@@ -211,7 +211,8 @@
                     <li class="active"><a href="{{ route('index') }}">Home</a></li>
                     <li><a href="{{ route('store') }}">Loja</a></li>{{--
                     <li><a href="#">Categorias</a></li> --}}
-                    <li><a href="#">Hot Deal</a></li>{{--
+                    <li><a href="#">Hot Deal</a></li>
+                    <li><a href="#">Sobre Nós</a>{{--
                     <li><a href="#">Smartphones</a></li>
                     <li><a href="#">Carcaças</a></li>
                     <li><a href="#">Accessories</a></li> --}}

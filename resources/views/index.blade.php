@@ -46,11 +46,93 @@
             background: rgba(26, 25, 25, 0.575);
             z-index: 1;
         }
+/* Fundo roxo em degradê */
+.guarantee-section{
+    background: linear-gradient(200deg, #FFF,#FFF );
+    padding: 100px 0;
+     width:100%;
+
+}
+
+/* Container dos cards */
+.guarantee{
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    padding: 0 80px;
+   width:100%;
+}
+
+/* Card */
+.guarantee .item{
+    background: #2c2f33;
+    display: flex;
+    align-items: center;
+    gap: 200px;
+    height: 110px;
+    width: 150%;
+    max-width: 420px;
+    border-radius: 15px;
+    padding: 0 30px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+/* Hover */
+.guarantee .item:hover{
+    border-color: #ffb742;
+}
+
+/* Ícone redondo */
+.guarantee .item .icon{
+    width: 80px;
+    height: 55px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.guarantee .item:hover .icon{
+    background: #ffb742;
+}
+
+.guarantee .item .icon i{
+    font-size: 28px;
+    color: #000;
+}
+
+/* Texto */
+.guarantee .item .info{
+    display: flex;
+    flex-direction: column;
+        align-items: center;    /* centraliza horizontalmente */
+    justify-content: center; /* centraliza verticalmente se houver altura */
+    text-align: center;     /* centraliza o texto */
+   
+
+}
+
+.guarantee .item .info h3{
+    color: #ffb742;
+    font-size: 30px;
+    margin: 0;
+}
+
+.guarantee .item .info p{
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
     </style>
 
         <div class="section">
             <!-- container -->
-            <div class="container-fluid" id="section-welcome" style="background-image: url({{ asset('image.png') }}); margin-top: -3rem; min-height: 500px;">
+            <div class="container-fluid" id="section-welcome" style="background-image: url({{ asset('deal.jpg') }}); margin-top: -3rem; min-height: 500px;">
 
                 <div class="row">
                     <div class="col-md-12" style="z-index: 200">
@@ -73,6 +155,41 @@
                             object-fit: contain
                         }
                     </style>
+
+   <section class="guarantee-section">
+    <div class="guarantee">
+        <div class="item">
+            <div class="icon">
+                <i class='bx bx-check-shield'></i>
+            </div>
+            <div class="info">
+                <h3>+10.000</h3>
+                <p>Contas Abertas</p>
+            </div>
+        </div>
+
+        <div class="item">
+            <div class="icon">
+                <i class='bx bx-check-circle'></i>
+            </div>
+            <div class="info">
+                <h3>+100</h3>
+                <p>Cartões entregues</p>
+            </div>
+        </div>
+
+        <div class="item">
+            <div class="icon">
+                <i class='bx bx-laugh'></i>
+            </div>
+            <div class="info">
+                <h3>+70</h3>
+                <p>Clientes Satisfeitos</p>
+            </div>
+        </div>
+    </div>
+</section>
+
                     <div class="row">
                         <!-- shop -->
                         <div class="col-md-4 col-xs-6">

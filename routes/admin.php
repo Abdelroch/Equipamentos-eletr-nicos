@@ -23,7 +23,7 @@ Route::group([
     'prefix' => 'admin',
     'middleware' => ['auth', 'role:admin|gestor|contabilista|marketing|juridico|rh|producao']
 ], function () {
-    Route::get('/dashboard', [MainController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get('/dashboard', [MainController::class, 'index'])->middleware(['auth', 'verified'])->name('admin.dashboard');
 
     Route::prefix('/gestao')->group(function () {
 
