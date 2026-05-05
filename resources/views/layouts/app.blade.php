@@ -51,7 +51,20 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 
 </head>
-
+<script>
+    $('#marcas-carousel').slick({
+        slidesToShow: 5,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 2000,
+        arrows: true,
+        dots: false,
+        responsive: [
+            { breakpoint: 992, settings: { slidesToShow: 3 } },
+            { breakpoint: 576, settings: { slidesToShow: 2 } }
+        ]
+    });
+</script>
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-dark-100 light:bg-dark-900">
         @include('layouts.admin.header')

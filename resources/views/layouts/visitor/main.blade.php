@@ -114,7 +114,7 @@
                     <!-- /SEARCH BAR -->
 
                     <!-- ACCOUNT -->
-                    <div class="col-md-3 clearfix">
+                    <div class="clearfix col-md-3">
                         <div class="header-ctn">
 
                             @auth
@@ -229,7 +229,44 @@
         </div>
         <!-- /container -->
     </nav>
-    <!-- /NAVIGATION -->
+    <!-- /NAVIGATION --><!-- NAVEGUE POR MARCA -->
+<div class="section">
+    <div class="container">
+        <h3 class="title">Navegue por Marca</h3>
+        <div class="row" id="marcas-carousel">
+            <div class="text-center col-md-2 col-xs-4">
+                <a href="{{ route('store') }}?marca=jbl">
+                    <img src="{{ asset('visitor/img/marcas/jbl.png') }}" alt="JBL" class="img-responsive">
+                </a>
+            </div>
+            <div class="text-center col-md-2 col-xs-4">
+                <a href="{{ route('store') }}?marca=samsung">
+                    <img src="{{ asset('visitor/img/marcas/samsung.png') }}" alt="Samsung" class="img-responsive">
+                </a>
+            </div>
+            <div class="text-center col-md-2 col-xs-4">
+                <a href="{{ route('store') }}?marca=apple">
+                    <img src="{{ asset('visitor/img/marcas/apple.png') }}" alt="Apple" class="img-responsive">
+                </a>
+            </div>
+            <div class="text-center col-md-2 col-xs-4">
+                <a href="{{ route('store') }}?marca=hp">
+                    <img src="{{ asset('visitor/img/marcas/hp.png') }}" alt="HP" class="img-responsive">
+                </a>
+            </div>
+            <div class="text-center col-md-2 col-xs-4">
+                <a href="{{ route('store') }}?marca=lenovo">
+                    <img src="{{ asset('visitor/img/marcas/lenovo.png') }}" alt="Lenovo" class="img-responsive">
+                </a>
+            </div>
+            <div class="text-center col-md-2 col-xs-4">
+                <a href="{{ route('store') }}?marca=lg">
+                    <img src="{{ asset('visitor/img/marcas/lg.png') }}" alt="LG" class="img-responsive">
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
     @yield('content')
 
     <br><br><br>
@@ -384,7 +421,7 @@
             <div class="container">
                 <!-- row -->
                 <div class="row">
-                    <div class="col-md-12 text-center">
+                    <div class="text-center col-md-12">
                        {{-- <ul class="footer-payments">
                             <li><a href="#"><i class="fa fa-cc-visa"></i></a></li>
                             <li><a href="#"><i class="fa fa-credit-card"></i></a></li>
@@ -405,6 +442,7 @@
             </div>
             <!-- /container -->
         </div>
+
         <!-- /bottom footer -->
     </footer>
     <!-- /FOOTER -->
