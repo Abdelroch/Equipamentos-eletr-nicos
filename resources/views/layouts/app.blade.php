@@ -28,7 +28,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
-
     <title>Perfil</title>
 
     <!-- Fonts -->
@@ -49,7 +48,34 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<!-- Tailwind CSS via CDN (sem npm) -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Script de configuração do Tailwind -->
+    <script>
+        tailwind.config = {
+            content: [],
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+
+    @stack('styles')
+    <!-- Tailwind CSS via CDN (sem npm) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Script de configuração do Tailwind -->
+    <script>
+        tailwind.config = {
+            content: [],
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+
+    @stack('styles')
 </head>
 <script>
     $('#marcas-carousel').slick({

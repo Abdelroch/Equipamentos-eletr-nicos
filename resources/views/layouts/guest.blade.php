@@ -9,7 +9,7 @@
        <link rel="icon" type="image/png" sizes="16x16" href='{{asset("assetsindex/img/favicons/favicon-16x16.png")}}'>
        <link rel="shortcut icon" type="image/x-icon" href="{{asset("assetsindex/img/favicons/favicon.ico")}}">
       <link rel="manifest" href='{{asset("assetsindex/img/favicons/manifest.json")}}'>
-
+<link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <title>Boas Vindas!</title>
 
         <!-- Fonts -->
@@ -24,6 +24,7 @@
            <script src="{{ asset('js/app.js') }}"></script>
            <script src="{{ asset('js/bootstrap.js') }}"></script>
     </head>
+    <script src="{{ asset('js/app.js') }}"></script>
     <body class="font-sans antialiased text-gray-900">
         <div class="flex flex-col items-center min-h-screen pt-6 bg-gray-100 sm:justify-center sm:pt-0 dark:bg-gray-900">
             <div>
