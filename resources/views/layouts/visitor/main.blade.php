@@ -256,7 +256,7 @@
             </div>
             <div class="text-center col-md-2 col-xs-4">
                 <a href="{{ route('store') }}?marca=lenovo">
-                    <img src="{{ asset('visitor/img/marcas/lenovo.png') }}" alt="Lenovo" class="img-responsive">
+                    <img src="{{ asset('visitor/img/marcas/lenovo-2.png') }}" alt="Lenovo" class="img-responsive">
                 </a>
             </div>
             <div class="text-center col-md-2 col-xs-4">
