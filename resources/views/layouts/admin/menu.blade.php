@@ -18,7 +18,7 @@
                     <span class="hide-menu">Home</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link primary-hover-bg {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}" aria-expanded="false">
+                    <a class="sidebar-link primary-hover-bg {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}" aria-expanded="false">
                         <span class="p-2 aside-icon bg-light-primary rounded-3">
                             <i class="ti ti-layout-dashboard fs-7 text-primary"></i>
                         </span>

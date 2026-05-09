@@ -22,13 +22,13 @@
  --}}              <li class="nav-item dropdown">
                 <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
                   aria-expanded="false">
-                   <div style="font-size:15px; margin-right:5px; "> <strong><b>Admin:</b></strong> {{ Auth::user()->name }}</div> 
+                   <div style="font-size:15px; margin-right:5px; "> <strong><b>Admin:</b></strong> {{ Auth::user()->name }}</div>
                   <img src="{{asset('../assets/images/profile/profile_photo.webp')}}" alt="" width="35" height="35" class="rounded-circle">
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                   <div class="message-body">
                     @if (request()->routeIs('profile.edit'))
-                    <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 dropdown-item">
+                    <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center gap-2 dropdown-item">
                         <i class="ti ti-dashboard fs-6"></i>
                         <p class="mb-0 fs-3"> Dashboard</p>
                     </a>
@@ -40,7 +40,7 @@
                 @endif
                        <form action="{{route('logout')}}" method="post">
                             @csrf
-                            
+
                           <button class="btn btn-outline-primary mx-3 mt-2 d-block shadow-none" type="submit" >Logout</button>
                        </form>
                     </a>
