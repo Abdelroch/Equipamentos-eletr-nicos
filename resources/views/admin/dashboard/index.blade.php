@@ -48,7 +48,7 @@
                     </div>
                 </div>
             </div>
-            {{-- <div class="col-md-4 col-lg-3">
+             <div class="col-md-4 col-lg-3">
                 <div class="shadow-sm card bg-light-primary">
                     <div class="card-body d-flex align-items-center">
                         <i class="ti ti-chart-bar fs-7 text-primary me-3"></i>
@@ -58,8 +58,8 @@
                         </div>
                     </div>
                 </div>
-            </div> --}}
-            {{-- <div class="col-md-4 col-lg-3">
+            </div> 
+            <div class="col-md-4 col-lg-3">
                 <div class="shadow-sm card bg-light-success">
                     <div class="card-body d-flex align-items-center">
                         <i class="ti ti-wallet fs-7 text-success me-3"></i>
@@ -69,12 +69,12 @@
                         </div>
                     </div>
                 </div>
-            </div> --}}
+            </div> 
         </div>
 
         <!-- Gráficos -->
         <div class="mt-5 row">
-            {{-- <div class="col-lg-6">
+             <div class="col-lg-6">
                 <div class="shadow-sm card" style="height: 400px; overflow: hidden;">
                     <div class="card-body" style="height: 100%;">
                         <h5 class="card-title">Visão Geral de Entidades</h5>
@@ -89,7 +89,7 @@
                         <canvas id="doughnutChart" style="max-height: 300px; height: 300px;"></canvas>
                     </div>
                 </div>
-            </div> --}}
+            </div> 
             <div class="mt-4 col-lg-12">
                 <div class="shadow-sm card" style="height: 400px; overflow: hidden;">
                     <div class="card-body" style="height: 100%;">

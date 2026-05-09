@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin\Product;
 
 use App\Models\Product;
 use App\Http\Controllers\Controller;
-use File;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use App\Models\Log;
 use App\Models\Supplier;
-use Str;
+use Illuminate\Support\Str;
 
 class MainController extends Controller
 {
