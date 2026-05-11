@@ -50,11 +50,11 @@
                                 <span class="hide-menu ms-2 ps-1">Produtos</span>
                             </a>
                         </li>
-                       {{--  <li class="sidebar-item">
+                        {{-- <li class="sidebar-item">
                             <a class="sidebar-link {{ request()->routeIs('admin.gestao.fornecedores') ? 'active' : '' }}" href="{{ route('admin.gestao.fornecedores') }}">
                                 <span class="hide-menu ms-2 ps-1">Fornecedores</span>
                             </a>
-                        </li>
+                        </li>--}}
                         <li class="sidebar-item">
                             <a class="sidebar-link {{ request()->routeIs('admin.gestao.vendas') ? 'active' : '' }}" href="{{ route('admin.gestao.vendas') }}">
                                 <span class="hide-menu ms-2 ps-1">Vendas</span>
@@ -70,11 +70,11 @@
                                 <span class="hide-menu ms-2 ps-1">Usuários</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
+                       {{-- <li class="sidebar-item">
                             <a class="sidebar-link {{ request()->routeIs('admin.gestao.financeiro') ? 'active' : '' }}" href="{{ route('admin.gestao.financeiro') }}">
                                 <span class="hide-menu ms-2 ps-1">Financeiro</span>
                             </a>
-                        </li>
+                        </li> --{}
                         <li class="sidebar-item">
                             <a class="sidebar-link {{ request()->routeIs('admin.gestao.contratos') ? 'active' : '' }}" href="{{ route('admin.gestao.contratos') }}">
                                 <span class="hide-menu ms-2 ps-1">Contratos</span>
@@ -95,7 +95,7 @@
                                 <span class="hide-menu ms-2 ps-1">Saques e Empréstimos</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
+                       {{-- <li class="sidebar-item">
                             <a class="sidebar-link {{ request()->routeIs('admin.gestao.atividades') ? 'active' : '' }}" href="{{ route('admin.gestao.atividades') }}">
                                 <span class="hide-menu ms-2 ps-1">Atividades</span>
                             </a>

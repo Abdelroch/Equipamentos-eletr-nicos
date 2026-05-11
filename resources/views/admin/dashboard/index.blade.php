@@ -37,7 +37,7 @@
                 </div>
             @endforeach
             <!-- Cards Adicionais -->
-            <div class="col-md-4 col-lg-3">
+           <div lass="col-md-4 col-lg-3">
                 <div class="shadow-sm card bg-light-info">
                     <div class="card-body d-flex align-items-center">
                         <i class="ti ti-currency-dollar fs-7 text-info me-3"></i>
@@ -48,7 +48,7 @@
                     </div>
                 </div>
             </div>
-             <div class="col-md-4 col-lg-3">
+             {{--<div class="col-md-4 col-lg-3">
                 <div class="shadow-sm card bg-light-primary">
                     <div class="card-body d-flex align-items-center">
                         <i class="ti ti-chart-bar fs-7 text-primary me-3"></i>
@@ -89,7 +89,7 @@
                         <canvas id="doughnutChart" style="max-height: 300px; height: 300px;"></canvas>
                     </div>
                 </div>
-            </div> 
+            </div> --}}
             <div class="mt-4 col-lg-12">
                 <div class="shadow-sm card" style="height: 400px; overflow: hidden;">
                     <div class="card-body" style="height: 100%;">
