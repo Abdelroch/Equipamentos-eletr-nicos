@@ -69,42 +69,97 @@ class MainController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $validated = $this->validateProduct($request);
+{
+    $validated = $this->validateProduct($request);
 
-        /* dd($request->all()); */
-        // dd($request->status);
-        try {
-            $produto = Product::create([
-                'nome' => $validated['name'],
-                'descricao' => $validated['inform'],
-                'preco' => $validated['price'],
-                'status' => $request->status,
-                'quantidade_disponivel' => $validated['quantity'],
-                'categoria' => $validated['category'],
-                'imagem' => 'default.jpg', 
-                'id_fornecedor' => $validated['supplier_name'],
-            ]);
-
-            // Log
-            $user_id = auth()->id();
-            Log::create([
-                'user_id' => $user_id,
-                'ip' => $request->ip(),
-                'accao' => 'Cadastramento',
-                'id_user' => $user_id,
-                'descricao' => "Usuário {$user_id} cadastrou o produto {$produto->nome} com ID {$produto->id}.",
-            ]);
-
-            return redirect()->route('admin.gestao.produtos')
-                ->with('success', 'Produto cadastrado com sucesso!');
-
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Erro ao cadastrar produto: ' . $e->getMessage()]);
+    try {
+        // Processar cover_image se enviada
+        $coverImagePath = null;
+        if ($request->hasFile('cover_image')) {
+            $coverImage = $request->file('cover_image');
+            if ($coverImage->isValid()) {
+                $folder = "imgs/products/temp";
+                $publicPath = public_path($folder);
+                if (!File::exists($publicPath)) {
+                    File::makeDirectory($publicPath, 0755, true);
+                }
+                $imageName = time() . '-' . Str::random(10) . '.' . $coverImage->getClientOriginalExtension();
+                $coverImage->move($publicPath, $imageName);
+                $coverImagePath = "$folder/$imageName";
+            }
         }
+
+        // Processar imagens adicionais se enviadas
+        $imagens = [];
+        if ($request->hasFile('imgs')) {
+            $folder = "imgs/products/temp";
+            $publicPath = public_path($folder);
+            if (!File::exists($publicPath)) {
+                File::makeDirectory($publicPath, 0755, true);
+            }
+            foreach ($request->file('imgs') as $image) {
+                if ($image->isValid()) {
+                    $imageName = time() . '-' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+                    $image->move($publicPath, $imageName);
+                    $imagens[] = "$folder/$imageName";
+                }
+            }
+        }
+
+        $produto = Product::create([
+            'nome'                 => $validated['name'],
+            'descricao'            => $validated['inform'],
+            'preco'                => $validated['price'],
+            'status'               => $request->status,
+            'quantidade_disponivel'=> $validated['quantity'],
+            'categoria'            => $validated['category'],
+            'cover_image'          => $coverImagePath,   // substitui 'imagem'
+            'imagens'              => $imagens,          // array JSON
+            'id_fornecedor'        => $validated['supplier_name'],
+        ]);
+
+        // Mover imagens da pasta temp para a pasta definitiva do produto
+        if ($coverImagePath) {
+            $newFolder    = "imgs/products/product-{$produto->id}";
+            $newPublicPath = public_path($newFolder);
+            if (!File::exists($newPublicPath)) {
+                File::makeDirectory($newPublicPath, 0755, true);
+            }
+            $newCoverPath = $newFolder . '/' . basename($coverImagePath);
+            File::move(public_path($coverImagePath), public_path($newCoverPath));
+
+            $newImagens = [];
+            foreach ($imagens as $img) {
+                $newImg = $newFolder . '/' . basename($img);
+                File::move(public_path($img), public_path($newImg));
+                $newImagens[] = $newImg;
+            }
+
+            $produto->update([
+                'cover_image' => $newCoverPath,
+                'imagens'     => $newImagens,
+            ]);
+        }
+
+        // Log
+        $user_id = auth()->id();
+        Log::create([
+            'user_id'   => $user_id,
+            'ip'        => $request->ip(),
+            'accao'     => 'Cadastramento',
+            'id_user'   => $user_id,
+            'descricao' => "Usuário {$user_id} cadastrou o produto {$produto->nome} com ID {$produto->id}.",
+        ]);
+
+        return redirect()->route('admin.gestao.produtos')
+            ->with('success', 'Produto cadastrado com sucesso!');
+
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->withInput()
+            ->withErrors(['error' => 'Erro ao cadastrar produto: ' . $e->getMessage()]);
     }
+}
 
     /**
      * Update the specified resource in storage.
