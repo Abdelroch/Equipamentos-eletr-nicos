@@ -29,7 +29,7 @@
         <div class="flex flex-col items-center min-h-screen pt-6 bg-gray-100 sm:justify-center sm:pt-0 dark:bg-gray-900">
             <div>
                 <a href="/">
-                    <strong  style="font-size:40px; color:#4492ff;">Meu <b style="color:white; ">Deal</b></strong>
+                    <strong  style="font-size:40px; color:#4492ff;">BAY <b style="color:white; ">QI</b></strong>
                 </a>
             </div>
 

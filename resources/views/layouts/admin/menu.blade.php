@@ -3,7 +3,7 @@
     <div class="scroll-sidebar" data-simplebar>
         <div class="mb-4 d-flex align-items-center justify-content-between">
             <a href="/" class="text-nowrap logo-img ms-0 ms-md-1">
-                <strong style="font-size:40px; color:#4492ff;"> MK <b style="color:#121111">LDA</b></strong>
+                <strong style="font-size:40px; color:#4492ff;"> BAY <b style="color:#121111">QI</b></strong>
             </a>
             <div class="cursor-pointer close-btn d-xl-none d-block sidebartoggler" id="sidebarCollapse">
                 <i class="ti ti-x fs-8"></i>

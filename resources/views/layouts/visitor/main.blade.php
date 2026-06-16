@@ -42,7 +42,7 @@
             <ul class="header-links pull-left">
                 <li><a href="tel:+244-952-281-231"><i class="fa fa-phone"></i> +244-952-281-231</a></li>
                 <li><a href="#"><i class="fa fa-envelope-o"></i> 0040 0000 6140 8348 1014 7 </a></li>
-                <li><a href="#"><i class="fa fa-map-marker"></i> Fubu / Condomínio Pelicano</a></li>
+                <li><a href="#"><i class="fa fa-map-marker"></i> Vila Alice / RUA ANTÓNIO DE CASTRO FEIJÓ  </a></li>
             </ul>
             <ul class="header-links pull-right">
                 <li><a href="#">AOA-KZ</a></li>
@@ -66,7 +66,7 @@
                         <div class="header-logo">
                             <br>
                             <a href="#" class="logo">
-                                <img src="{{ asset('deal..png') }}" alt="" width="250" height="40"
+                                <img src="{{ asset('bayqi.png') }}" alt="" width="280" height="50"
                                     style="margin-top: 1rem"> </a>
                         </div>
                     </div>

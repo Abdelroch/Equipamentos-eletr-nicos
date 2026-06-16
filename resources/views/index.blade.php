@@ -1,6 +1,6 @@
 @extends('layouts.visitor.main')
 
-@section('title', 'meuDeal.')
+@section('title', 'BAYQI.')
 
 @section('content')
 
@@ -136,7 +136,7 @@
 
                 <div class="row">
                     <div class="col-md-12" style="z-index: 200">
-                        <h2>Bem-vindo ao MeuDeal</h2>
+                        <h2>Bem-vindo ao BAYQI</h2>
                         <h4>Encontre as Melhores Ofertas em Eletrônicos.</h4>
                     </div>
                 </div>

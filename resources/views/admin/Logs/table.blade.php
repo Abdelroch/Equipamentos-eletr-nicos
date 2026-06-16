@@ -102,7 +102,7 @@
 
   
 <div class="py-6 px-6 text-center">
-  <p class="mb-0 fs-4">&copy;  MK LDA 2025 <a class="pe-1 text-primary text-decoration-underline">❤️</a></p>
+  <p class="mb-0 fs-4">&copy;  BAYQI LDA 2025/2026 <a class="pe-1 text-primary text-decoration-underline">❤️</a></p>
 </div>
 </div>
 

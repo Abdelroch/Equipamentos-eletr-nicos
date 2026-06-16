@@ -7,16 +7,23 @@ use Illuminate\Support\Facades\DB;
 
 class BudgetService
 {
-    public static function updateBudget($data)
-    {
-        return DB::transaction(function () use ($data) {
+    public static function updateBudget(
+        float $amount,
+        string $description,
+        string $transactionType,
+        string $transactionDate,
+        int $userId,
+        ?string $category = null
+    ) {
+        return DB::transaction(function () use ($amount, $description, $transactionType, $transactionDate, $userId, $category) {
+
             // Obtém o saldo atual
-            $currentBalance = Budget::sum('amount') ?? 0;
+            $currentBalance = (float) (Budget::sum('amount') ?? 0);
 
             // Calcula o novo saldo
-            $amount = $data['amount'];
-            $transactionType = $data['transaction_type'];
-            $newBalance = $transactionType === 'Receita' ? $currentBalance + $amount : $currentBalance - $amount;
+            $newBalance = $transactionType === 'Receita'
+                ? $currentBalance + $amount
+                : $currentBalance - $amount;
 
             // Validação de saldo insuficiente
             if ($transactionType === 'Despesa' && $newBalance < 0) {
@@ -24,29 +31,31 @@ class BudgetService
             }
 
             // Validação de limite por categoria (se aplicável)
-            if (!empty($data['category'])) {
-                $monthlyLimit = self::getCategoryLimit($data['category'], $data['transaction_date']);
-                $spentThisMonth = self::getMonthlySpending($data['category'], $data['transaction_date']);
+            if (!empty($category)) {
+                $monthlyLimit = self::getCategoryLimit($category, $transactionDate);
+                $spentThisMonth = self::getMonthlySpending($category, $transactionDate);
                 if ($spentThisMonth + $amount > $monthlyLimit) {
-                    throw new \Exception("Limite mensal para a categoria {$data['category']} excedido.");
+                    throw new \Exception("Limite mensal para a categoria {$category} excedido.");
                 }
             }
 
             // Cria a transação
             $budget = Budget::create([
-                'balance' => $newBalance,
-                'description' => $data['description'],
+                'balance'          => $newBalance,
+                'description'      => $description,
                 'transaction_type' => $transactionType,
-                'amount' => $transactionType === 'Receita' ? $amount : -$amount,
-                'transaction_date' => $data['transaction_date'],
-                'user_id' => $data['user_id'],
-                'category' => $data['category'] ?? null,
+                'amount'           => $transactionType === 'Receita' ? $amount : -$amount,
+                'transaction_date' => $transactionDate,
+                'user_id'          => $userId,
+                'category'         => $category,
             ]);
 
-            // Dispara notificação se saldo estiver baixo
-            if ($newBalance < 10000) { // Exemplo: limite de 10.000 KZ
-                $user = \App\Models\User::find($data['user_id']);
-                $user->notify(new \App\Notifications\LowBalanceNotification($newBalance));
+            // Notificação de saldo baixo
+            if ($newBalance < 10000) {
+                $user = \App\Models\User::find($userId);
+                if ($user) {
+                    $user->notify(new \App\Notifications\LowBalanceNotification($newBalance));
+                }
             }
 
             return $budget->id;
@@ -55,13 +64,12 @@ class BudgetService
 
     private static function getCategoryLimit($category, $date)
     {
-        // Defina limites no config ou banco de dados
         $limits = [
             'Imposto' => 100000,
             'Salário' => 500000,
             'Projeto' => 200000,
         ];
-        return $limits[$category] ?? 1000000; // Padrão
+        return $limits[$category] ?? 1000000;
     }
 
     private static function getMonthlySpending($category, $date)

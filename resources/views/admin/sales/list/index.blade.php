@@ -54,10 +54,10 @@
                                                         <label class="custom-control-label"></label>
                                                     </div>
                                                 </td>
-                                                <td>{{ $sale->id }}</td>
-                                                <td>{{ $sale->client->nome }}</td>
-                                                <td>{{ $sale->product->nome }}</td>
-                                                <td>{{ number_format($sale->product->preco, 2, ',', '.') }}</td>
+                                              <td>{{ $sale->id }}</td>
+                                                <td>{{ $sale->client?->nome ?? 'Cliente não encontrado' }}</td>
+                                                <td>{{ $sale->product?->nome ?? 'Produto não encontrado' }}</td>
+                                                <td>{{ $sale->product ? number_format($sale->product->preco, 2, ',', '.') : '0,00' }}</td>
                                                 <td>{{ $sale->quantidade }}</td>
                                                 <td>{{ number_format($sale->total, 2, ',', '.') }}</td>
                                                 <td>{{ date('d/m/Y', strtotime($sale->created_at)) }}</td>
@@ -125,7 +125,7 @@
     </div>
 
     <div class="px-6 py-6 text-center">
-        <p class="mb-0 fs-4">© MK LDA 2025 <a class="pe-1 text-primary text-decoration-underline">❤️</a></p>
+        <p class="mb-0 fs-4">© BAYQI LDA 2025/2026 <a class="pe-1 text-primary text-decoration-underline">❤️</a></p>
     </div>
 
     @if (session('vendaCadastrado'))

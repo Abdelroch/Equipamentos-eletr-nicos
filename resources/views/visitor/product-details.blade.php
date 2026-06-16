@@ -187,7 +187,7 @@
                         <!-- Billing Details -->
                         <div class="billing-details">
                                 <div class="section-title">
-                                    <h3 class="title">NEGOCIAR PREÇO</h3>
+                                    <h3 class="title">FAZER COMPRA</h3>
                                 </div>
 
                                 <form method="POST" action="{{ route('customer.store_order_negotiation') }}">
@@ -205,7 +205,7 @@
                                         @enderror
                                     </div>
                                     <input type="hidden" name="product_id" value="{{ $product->id }}"> <!-- Ajuste conforme a variável $product -->
-                                    <button type="submit" class="btn-negotiate">NEGOCIAR</button>
+                                    <button type="submit" class="btn-negotiate">COMPRAR</button>
                                 </form>
 
                                <!-- Alerta dinâmico -->

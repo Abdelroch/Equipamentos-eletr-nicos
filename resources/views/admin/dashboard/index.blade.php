@@ -178,7 +178,7 @@
                     <div class="tab-pane fade" id="vendas" role="tabpanel">
                         <ul class="mt-3 list-group">
                             @forelse($ultimasVendas as $venda)
-                                <li class="list-group-item">{{ $venda->client->nome }} comprou {{ $venda->product->nome }} ({{ number_format($venda->quantidade * $venda->product->preco, 2, ',', '.') }} AOA)</li>
+                                <li class="list-group-item">{{ $venda->client->nome ?? 'Cliente removido' }} comprou {{ $venda->product->nome ?? 'Produto removido' }} ({{ number_format($venda->quantidade * ($venda->product->preco ?? 0), 2, ',', '.') }} AOA)</li>
                             @empty
                                 <li class="text-center list-group-item">Nenhuma venda recente.</li>
                             @endforelse
@@ -223,7 +223,7 @@
                     <div class="tab-pane fade" id="ordens-producao" role="tabpanel">
                         <ul class="mt-3 list-group">
                             @forelse($ultimasOrdensProducao as $ordem)
-                                <li class="list-group-item">{{ $ordem->product->nome }} (Qtd: {{ $ordem->quantity }}, {{ $ordem->status }})</li>
+                                <li class="list-group-item">{{ $ordem->product->nome ?? 'Produto removido' }} (Qtd: {{ $ordem->quantity }}, {{ $ordem->status }})</li>
                             @empty
                                 <li class="text-center list-group-item">Nenhuma ordem de produção recente.</li>
                             @endforelse
