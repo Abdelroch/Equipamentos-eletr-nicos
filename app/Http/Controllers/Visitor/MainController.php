@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\User;
-use DB;
-use Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -20,6 +20,7 @@ class MainController extends Controller
         $data['products_monitors'] = Product::orderByDesc('created_at')->where('status', 'Extremamente Bom')->where('categoria', 'monitors')->get();
         $data['products_sold'] = Product::orderByDesc('created_at')->where('estado_venda', 'vendido')->get();
         $data['products_carcass'] = Product::orderByDesc('created_at')->where('status','Irreparável')->get();
+        $data['categorias'] = \App\Models\Categoria::where('activa', true)->orderBy('nome')->get();
         return view("index", $data);
     }
 
@@ -80,6 +81,7 @@ class MainController extends Controller
     }
 
     public function store(){
+        $data['categorias'] = \App\Models\Categoria::where('activa', true)->orderBy('nome')->get();
         $data['products_featured'] = Product::orderByDesc('created_at')->take(10)->get();
         $data['products_good'] = Product::orderByDesc('created_at')->where('status', 'Bom')->get();
         $data['products_very_good'] = Product::orderByDesc('created_at')->where('status', 'Extremamente Bom')->paginate(12);
