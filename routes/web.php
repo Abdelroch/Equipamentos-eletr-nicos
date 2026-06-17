@@ -37,7 +37,7 @@ Route::group(
 
                 Route::get('solicitacoes', ['uses' => 'Customer\MainController@order_requests', 'as' => 'order_requests']);
                 Route::post('encomenda/negociar', ['uses' => 'Customer\MainController@store_order_negotiation', 'as' => 'store_order_negotiation']);
-
+                Route::post('encomenda/comprar', ['uses' => 'Customer\MainController@store_direct_purchase', 'as' => 'store_direct_purchase']);
             }
         );
 

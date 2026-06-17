@@ -15,59 +15,105 @@ class MainController extends Controller
      * Registra uma nova negociação de preço
      */
     /**
- * Registra uma nova negociação de preço
- */
-public function store_order_negotiation(Request $request)
-{
-    $validated = $request->validate([
-        'offer'       => 'required|numeric|min:0',
-        'notes'       => 'nullable|string|max:1000',
-        'product_id'  => 'required|exists:product,id',
-    ]);
-
-    $userId = Auth::id();
-
-    // Buscar apenas as colunas que realmente existem na tabela
-    $product = DB::table('product')
-        ->where('id', $validated['product_id'])
-        ->first(['preco', 'nome']);   // ← Apenas colunas existentes
-
-    if (!$product) {
-        return redirect()->back()->with('error', 'Produto não encontrado.');
-    }
-
-    $originalPrice   = (float) $product->preco;
-    $proposedPrice   = (float) $validated['offer'];
-    $deliveryCost    = 0;                    // Valor padrão (sem delivery_cost na tabela)
-    $totalPrice      = $proposedPrice + $deliveryCost;
-
-    DB::beginTransaction();
-
-    try {
-        OrderNegotiation::create([
-            'user_id'           => $userId,
-            'product_id'        => $validated['product_id'],
-            'quantity'          => 1,
-            'original_price'    => $originalPrice,
-            'proposed_price'    => $proposedPrice,
-            'delivery_cost'     => $deliveryCost,
-            'total_price'       => $totalPrice,
-            'delivery_location' => 'Luanda',           // Valor padrão
-            'notes'             => $validated['notes'],
-            'status'            => 'pending',
+     * Registra uma nova negociação de preço
+     */
+    public function store_order_negotiation(Request $request)
+    {
+        $validated = $request->validate([
+            'offer'       => 'required|numeric|min:0',
+            'notes'       => 'nullable|string|max:1000',
+            'product_id'  => 'required|exists:product,id',
         ]);
 
-        DB::commit();
+        $userId = Auth::id();
 
-        return redirect()->back()
-            ->with('success', 'Negociação enviada com sucesso! Aguarde contato.');
+        // Buscar apenas as colunas que realmente existem na tabela
+        $product = DB::table('product')
+            ->where('id', $validated['product_id'])
+            ->first(['preco', 'nome']);   // ← Apenas colunas existentes
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()
-            ->with('error', 'Erro ao processar a negociação. Tente novamente.');
+        if (!$product) {
+            return redirect()->back()->with('error', 'Produto não encontrado.');
+        }
+
+        $originalPrice   = (float) $product->preco;
+        $proposedPrice   = (float) $validated['offer'];
+        $deliveryCost    = 0;                    // Valor padrão (sem delivery_cost na tabela)
+        $totalPrice      = $proposedPrice + $deliveryCost;
+
+        DB::beginTransaction();
+
+        try {
+            OrderNegotiation::create([
+                'user_id'           => $userId,
+                'product_id'        => $validated['product_id'],
+                'quantity'          => 1,
+                'original_price'    => $originalPrice,
+                'proposed_price'    => $proposedPrice,
+                'delivery_cost'     => $deliveryCost,
+                'total_price'       => $totalPrice,
+                'delivery_location' => 'Luanda',           // Valor padrão
+                'notes'             => $validated['notes'],
+                'status'            => 'pending',
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Negociação enviada com sucesso! Aguarde contato.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Erro ao processar a negociação. Tente novamente.');
+        }
     }
-}
+    /**
+     * Compra directa (sem negociação — usa o preço original do produto)
+     */
+    public function store_direct_purchase(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:product,id',
+            'notes'      => 'nullable|string|max:1000',
+        ]);
+
+        $product = DB::table('product')
+            ->where('id', $validated['product_id'])
+            ->first(['preco', 'nome']);
+
+        if (!$product) {
+            return redirect()->back()->with('error', 'Produto não encontrado.');
+        }
+
+        $originalPrice = (float) $product->preco;
+        $deliveryCost  = 2500;
+        $totalPrice    = $originalPrice + $deliveryCost;
+
+        DB::beginTransaction();
+        try {
+            OrderNegotiation::create([
+                'user_id'           => Auth::id(),
+                'product_id'        => $validated['product_id'],
+                'quantity'          => 1,
+                'original_price'    => $originalPrice,
+                'proposed_price'    => $originalPrice, // preço aceite sem negociação
+                'delivery_cost'     => $deliveryCost,
+                'total_price'       => $totalPrice,
+                'delivery_location' => 'Luanda',
+                'notes'             => $validated['notes'] ?? null,
+                'status'            => 'accepted', // compra directa → já aceite
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Compra realizada com sucesso! Aguarde contacto para entrega.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Erro ao processar a compra. Tente novamente.');
+        }
+    }
     public function customer_create_account(Request $request)
     {
         $validated = $request->validate([

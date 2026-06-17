@@ -111,7 +111,7 @@
         align-items: center;    /* centraliza horizontalmente */
     justify-content: center; /* centraliza verticalmente se houver altura */
     text-align: center;     /* centraliza o texto */
-   
+
 
 }
 
@@ -291,11 +291,25 @@
                                                             <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Visualização rápida</span></button>--}}
                                                         </div>
                                                     </div>
-                                                    <div class="add-to-cart">
-                                                        <a href="{{ route('visitor.negotiate', ['product_slug' => $product->slug]) }}">
-                                                            <button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Negociar</button>
-                                                        </a>
-                                                    </div>
+                                                    <div class="add-to-cart" style="display: flex; gap: 4px;">
+    {{-- Negociar --}}
+    <a href="{{ route('visitor.negotiate', ['product_slug' => $product->slug]) }}"
+       style="flex: 1;">
+        <button class="add-to-cart-btn" style="width:100%; background:#d63031;">
+            <i class="fa fa-gavel"></i> Negociar
+        </button>
+    </a>
+
+    {{-- Comprar --}}
+    <form method="POST" action="{{ route('customer.store_direct_purchase') }}" style="flex: 1;">
+        @csrf
+        <input type="hidden" name="product_id" value="{{ $product->id }}">
+        <button type="submit" class="add-to-cart-btn"
+                style="width:100%; background:#27ae60;">
+            <i class="fa fa-shopping-cart"></i> Comprar
+        </button>
+    </form>
+</div>
                                                 </div>
                                             @endforeach
                                         </div>

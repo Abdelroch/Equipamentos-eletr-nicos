@@ -39,12 +39,12 @@ class AuthenticatedSessionController extends Controller
 
         // Verificar o access_level do usuário autenticado
         $user = Auth::user();
+
         if ($user->access_level === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
-        // Para 'customer' ou qualquer outro caso, redirecionar para '/'
-        return redirect('/');
+        return redirect()->route('customer.settings.my_accout.profile');
     }
 
     /**
