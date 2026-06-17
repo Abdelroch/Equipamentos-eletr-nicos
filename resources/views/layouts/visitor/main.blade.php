@@ -42,7 +42,8 @@
             <ul class="header-links pull-left">
                 <li><a href="tel:+244-952-281-231"><i class="fa fa-phone"></i> +244-952-281-231</a></li>
                 <li><a href="#"><i class="fa fa-envelope-o"></i> 0040 0000 6140 8348 1014 7 </a></li>
-                <li><a href="#"><i class="fa fa-map-marker"></i> Vila Alice / RUA ANTÓNIO DE CASTRO FEIJÓ  </a></li>
+                <li><a href="#"><i class="fa fa-map-marker"></i> Vila Alice / RUA ANTÓNIO DE CASTRO FEIJÓ </a>
+                </li>
             </ul>
             <ul class="header-links pull-right">
                 <li><a href="#">AOA-KZ</a></li>
@@ -76,12 +77,11 @@
                     <div class="col-md-6">
                         <div class="header-search">
                             <form>
-                                <select class="input-select" style="width: 13rem">
+                                <select class="input-select" style="width: 13rem" name="categoria">
                                     <option value="all" selected>Todas as categorias</option>
-                                    <option value="smartphones">Smartphones</option>
-                                    <option value="laptops">Laptops</option>
-                                    <option value="desktops">Computadores Desktop</option>
-                                    <!-- ... outras opções ... -->
+                                    @foreach ($categorias ?? [] as $cat)
+                                        <option value="{{ $cat->slug }}">{{ $cat->nome }}</option>
+                                    @endforeach
                                 </select>
                                 <input class="input" placeholder="Nome, descrição, preço ou id do producto">
                                 <button class="search-btn">Procurar</button>
@@ -372,7 +372,8 @@
                             nameInput.val('');
                             birthInput.val('');
                             alert(
-                                'Não foi possível consultar o BI no momento. Tente novamente.');
+                                'Não foi possível consultar o BI no momento. Tente novamente.'
+                                );
                         }
                     });
                 } else {
