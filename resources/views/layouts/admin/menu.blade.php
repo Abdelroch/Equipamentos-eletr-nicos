@@ -18,7 +18,8 @@
                     <span class="hide-menu">Home</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link primary-hover-bg {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}" aria-expanded="false">
+                    <a class="sidebar-link primary-hover-bg {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                        href="{{ route('admin.dashboard') }}" aria-expanded="false">
                         <span class="p-2 aside-icon bg-light-primary rounded-3">
                             <i class="ti ti-layout-dashboard fs-7 text-primary"></i>
                         </span>
@@ -32,8 +33,9 @@
                     <span class="hide-menu">Gestão</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link warning-hover-bg has-arrow {{ request()->routeIs('admin.gestao.*') ? 'active' : '' }}" href="javascript:void(0)" aria-expanded="false"
-                        data-bs-toggle="collapse" data-bs-target="#gestaoSubmenu" aria-controls="gestaoSubmenu">
+                    <a class="sidebar-link warning-hover-bg has-arrow {{ request()->routeIs('admin.gestao.*') ? 'active' : '' }}"
+                        href="javascript:void(0)" aria-expanded="false" data-bs-toggle="collapse"
+                        data-bs-target="#gestaoSubmenu" aria-controls="gestaoSubmenu">
                         <span class="p-2 aside-icon bg-light-warning rounded-3">
                             <i class="ti ti-briefcase fs-7 text-warning"></i>
                         </span>
@@ -41,36 +43,55 @@
                     </a>
                     <ul id="gestaoSubmenu" class="collapse sidebar-submenu">
                         <li class="sidebar-item">
-                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.clientes') ? 'active' : '' }}" href="{{ route('admin.gestao.clientes') }}">
+                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.clientes') ? 'active' : '' }}"
+                                href="{{ route('admin.gestao.clientes') }}">
                                 <span class="hide-menu ms-2 ps-1">Clientes</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.produtos') ? 'active' : '' }}" href="{{ route('admin.gestao.produtos') }}">
+                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.produtos') ? 'active' : '' }}"
+                                href="{{ route('admin.gestao.produtos') }}">
                                 <span class="hide-menu ms-2 ps-1">Produtos</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link {{ request()->routeIs('admin.categorias.*') ? 'active' : '' }}"
+                                href="{{ route('admin.categorias.index') }}">
+                                <span class="hide-menu ms-2 ps-1">Categorias</span>
+                            </a>
+                        </li>
+                        {{-- ... --}}
+                        <li class="sidebar-item">
+                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.vendas') ? 'active' : '' }}"
+                                href="{{ route('admin.gestao.vendas') }}">
+                                <span class="hide-menu ms-2 ps-1">Vendas</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link {{ request()->routeIs('admin.orders.index') ? 'active' : '' }}"
+                                href="{{ route('admin.orders.index') }}">
+                                <span class="hide-menu ms-2 ps-1">Encomendas</span>
                             </a>
                         </li>
                         {{-- <li class="sidebar-item">
                             <a class="sidebar-link {{ request()->routeIs('admin.gestao.fornecedores') ? 'active' : '' }}" href="{{ route('admin.gestao.fornecedores') }}">
                                 <span class="hide-menu ms-2 ps-1">Fornecedores</span>
                             </a>
-                        </li>--}}
+                        </li> --}}
+                       
                         <li class="sidebar-item">
-                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.vendas') ? 'active' : '' }}" href="{{ route('admin.gestao.vendas') }}">
-                                <span class="hide-menu ms-2 ps-1">Vendas</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.funcionarios') ? 'active' : '' }}" href="{{ route('admin.gestao.funcionarios') }}">
+                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.funcionarios') ? 'active' : '' }}"
+                                href="{{ route('admin.gestao.funcionarios') }}">
                                 <span class="hide-menu ms-2 ps-1">Funcionários</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.usuarios') ? 'active' : '' }}" href="{{ route('admin.gestao.usuarios') }}">
+                            <a class="sidebar-link {{ request()->routeIs('admin.gestao.usuarios') ? 'active' : '' }}"
+                                href="{{ route('admin.gestao.usuarios') }}">
                                 <span class="hide-menu ms-2 ps-1">Usuários</span>
                             </a>
                         </li>
-                       {{-- <li class="sidebar-item">
+                        {{-- <li class="sidebar-item">
                             <a class="sidebar-link {{ request()->routeIs('admin.gestao.financeiro') ? 'active' : '' }}" href="{{ route('admin.gestao.financeiro') }}">
                                 <span class="hide-menu ms-2 ps-1">Financeiro</span>
                             </a>
@@ -109,8 +130,9 @@
                     <span class="hide-menu">Relatórios</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link success-hover-bg has-arrow {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}" href="javascript:void(0)" aria-expanded="false"
-                        data-bs-toggle="collapse" data-bs-target="#relatoriosSubmenu" aria-controls="relatoriosSubmenu">
+                    <a class="sidebar-link success-hover-bg has-arrow {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}"
+                        href="javascript:void(0)" aria-expanded="false" data-bs-toggle="collapse"
+                        data-bs-target="#relatoriosSubmenu" aria-controls="relatoriosSubmenu">
                         <span class="p-2 aside-icon bg-light-success rounded-3">
                             <i class="ti ti-report fs-7 text-success"></i>
                         </span>
@@ -118,22 +140,25 @@
                     </a>
                     <ul id="relatoriosSubmenu" class="collapse sidebar-submenu">
                         <li class="sidebar-item">
-                            <a class="sidebar-link {{ request()->routeIs('admin.reports.products') ? 'active' : '' }}" href="{{ route('admin.reports.products') }}">
+                            <a class="sidebar-link {{ request()->routeIs('admin.reports.products') ? 'active' : '' }}"
+                                href="{{ route('admin.reports.products') }}">
                                 <span class="hide-menu ms-2 ps-1">Relatório de Produtos</span>
                             </a>
                         </li>
-                       {{--  <li class="sidebar-item">
+                        {{--  <li class="sidebar-item">
                             <a class="sidebar-link {{ request()->routeIs('admin.reports.sales') ? 'active' : '' }}" href="{{ route('admin.reports.sales') }}">
                                 <span class="hide-menu ms-2 ps-1">Relatório de Vendas</span>
                             </a>
                         </li> --}}
                         <li class="sidebar-item">
-                            <a class="sidebar-link {{ request()->routeIs('admin.reports.labels') ? 'active' : '' }}" href="{{ route('admin.reports.labels') }}">
+                            <a class="sidebar-link {{ request()->routeIs('admin.reports.labels') ? 'active' : '' }}"
+                                href="{{ route('admin.reports.labels') }}">
                                 <span class="hide-menu ms-2 ps-1">Relatório de Rótulos</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link {{ request()->routeIs('admin.reports.prices') ? 'active' : '' }}" href="{{ route('admin.reports.prices') }}">
+                            <a class="sidebar-link {{ request()->routeIs('admin.reports.prices') ? 'active' : '' }}"
+                                href="{{ route('admin.reports.prices') }}">
                                 <span class="hide-menu ms-2 ps-1">Relatório de Preços</span>
                             </a>
                         </li>
@@ -151,7 +176,8 @@
                     <span class="hide-menu">Perfil</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link info-hover-bg {{ request()->routeIs('profile.edit') ? 'active' : '' }}" href="{{ route('profile.edit') }}" aria-expanded="false">
+                    <a class="sidebar-link info-hover-bg {{ request()->routeIs('profile.edit') ? 'active' : '' }}"
+                        href="{{ route('profile.edit') }}" aria-expanded="false">
                         <span class="p-2 aside-icon bg-light-info rounded-3">
                             <i class="ti ti-user fs-7 text-info"></i>
                         </span>
@@ -170,4 +196,3 @@
         </nav>
     </div>
 </aside>
-

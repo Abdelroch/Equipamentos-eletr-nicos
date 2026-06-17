@@ -31,6 +31,7 @@ Route::group(
 
                 Route::group(['prefix' => 'configuracoes/minha-conta', 'as' => 'settings.my_accout.'], function () {
                     Route::get('', ['uses' => 'Customer\MainController@profile', 'as' => 'profile']);
+                    Route::post('', ['uses' => 'Customer\MainController@update_account', 'as' => 'update_account']);
                 });
                 Route::post(
                     'encomenda/{order_id}/comprovativo',

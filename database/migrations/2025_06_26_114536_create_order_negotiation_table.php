@@ -22,7 +22,6 @@ return new class extends Migration
             $table->decimal('total_price', 15, 2);
             $table->string('delivery_location')->nullable();
             $table->text('notes')->nullable();
-            $table->string('payment_method')->nullable();
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->softDeletes();
             $table->timestamps();

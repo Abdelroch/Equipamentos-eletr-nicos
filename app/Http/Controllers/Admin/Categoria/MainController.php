@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\Categoria;
 
 use App\Http\Controllers\Controller;
 use App\Models\Categoria;
-use App\Models\Product;
 use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -14,77 +13,69 @@ class MainController extends Controller
     public function index()
     {
         $categorias = Categoria::orderBy('nome')->get();
-        return view('admin.categorias.index', ['data' => ['categorias' => $categorias]]);
+        return view('admin.categorias.index', compact('categorias'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nome'  => 'required|string|max:255|unique:categorias,nome',
-            'icone' => 'nullable|string|max:100',
+            'nome'   => 'required|string|max:100|unique:categorias,nome',
+            'slug'   => 'required|string|max:100|unique:categorias,slug',
+            'icone'  => 'nullable|string|max:50',
+            'activa' => 'required|boolean',
         ]);
 
-        $categoria = Categoria::create([
-            'nome'   => $validated['nome'],
-            'slug'   => Str::slug($validated['nome']),
-            'icone'  => $validated['icone'] ?? 'fa fa-cube',
-            'activa' => $request->boolean('activa', true),
-        ]);
+        $cat = Categoria::create($validated);
 
         Log::create([
             'user_id'   => auth()->id(),
             'ip'        => $request->ip(),
             'accao'     => 'Criação de Categoria',
-            'descricao' => "Categoria {$categoria->nome} criada por " . auth()->user()->name,
+            'descricao' => "Categoria {$cat->nome} criada.",
         ]);
 
-        return redirect()->route('admin.categorias.index')->with('success', 'Categoria criada com sucesso.');
+        return redirect()->route('admin.categorias.index')
+            ->with('success', "Categoria '{$cat->nome}' criada com sucesso!");
     }
 
     public function update(Request $request, $id)
     {
-        $categoria = Categoria::findOrFail($id);
+        $cat = Categoria::findOrFail($id);
 
         $validated = $request->validate([
-            'nome'  => 'required|string|max:255|unique:categorias,nome,' . $id,
-            'icone' => 'nullable|string|max:100',
+            'nome'   => 'required|string|max:100|unique:categorias,nome,' . $id,
+            'slug'   => 'required|string|max:100|unique:categorias,slug,' . $id,
+            'icone'  => 'nullable|string|max:50',
+            'activa' => 'required|boolean',
         ]);
 
-        $categoria->update([
-            'nome'   => $validated['nome'],
-            'slug'   => Str::slug($validated['nome']),
-            'icone'  => $validated['icone'] ?? $categoria->icone,
-            'activa' => $request->boolean('activa', true),
-        ]);
+        $cat->update($validated);
 
         Log::create([
             'user_id'   => auth()->id(),
             'ip'        => $request->ip(),
-            'accao'     => 'Atualização de Categoria',
-            'descricao' => "Categoria {$categoria->nome} atualizada por " . auth()->user()->name,
+            'accao'     => 'Actualização de Categoria',
+            'descricao' => "Categoria {$cat->nome} actualizada.",
         ]);
 
-        return redirect()->route('admin.categorias.index')->with('success', 'Categoria atualizada.');
+        return redirect()->route('admin.categorias.index')
+            ->with('success', "Categoria '{$cat->nome}' actualizada!");
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $categoria = Categoria::findOrFail($id);
-
-        if (Product::where('categoria', $categoria->slug)->exists()) {
-            return redirect()->back()->with('error', 'Não é possível remover: existem produtos associados a esta categoria.');
-        }
-
-        $nome = $categoria->nome;
-        $categoria->delete();
+        $cat = Categoria::findOrFail($id);
+        $nome = $cat->nome;
+        $cat->delete();
 
         Log::create([
             'user_id'   => auth()->id(),
-            'ip'        => request()->ip(),
-            'accao'     => 'Exclusão de Categoria',
-            'descricao' => "Categoria {$nome} removida por " . auth()->user()->name,
+            'ip'        => $request->ip(),
+            'accao'     => 'Eliminação de Categoria',
+            'descricao' => "Categoria {$nome} eliminada.",
         ]);
 
-        return redirect()->route('admin.categorias.index')->with('success', 'Categoria removida.');
+        return redirect()->route('admin.categorias.index')
+            ->with('success', "Categoria '{$nome}' eliminada.");
     }
 }

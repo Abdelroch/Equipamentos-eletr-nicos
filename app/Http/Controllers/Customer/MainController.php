@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OrderNegotiation;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -42,9 +43,10 @@ class MainController extends Controller
         $totalPrice      = $proposedPrice + $deliveryCost;
 
         DB::beginTransaction();
-        $customerData = DB::table('customer')
-            ->where('user_id', Auth::id())
-            ->first(['address', 'bairro', 'province', 'reference_point']);
+       $customerData = DB::table('customer')
+    ->where('user_id', Auth::id())
+    ->first(['address', 'bairro', 'province', 'reference_point', 'payment_method']);
+
 
         try {
             OrderNegotiation::create([
@@ -59,7 +61,9 @@ class MainController extends Controller
                 'delivery_reference' => $customerData->reference_point ?? null,
                 'delivery_location'  => $customerData->province ?? 'Luanda',
                 'total_price'       => $totalPrice,
-                'delivery_location' => 'Luanda',           // Valor padrão
+                           // Valor padrão
+                'payment_method' => $customerData->payment_method ?? 'Não definido',
+
                 'notes'             => $validated['notes'],
                 'status'            => 'pending',
             ]);
@@ -112,7 +116,7 @@ class MainController extends Controller
                 'delivery_reference' => $customerData->reference_point ?? null,
                 'delivery_location'  => $customerData->province ?? 'Luanda',
                 'total_price'       => $totalPrice,
-                'delivery_location' => 'Luanda',
+
                 'notes'             => $validated['notes'] ?? null,
                 'status'            => 'accepted', // compra directa → já aceite
             ]);
@@ -222,7 +226,7 @@ class MainController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        if (!in_array($order->status, ['pending', 'accepted'])) {
+        if ($order->status !== 'accepted') {
             return redirect()->back()
                 ->with('error', 'Não é possível submeter comprovativo para esta encomenda.');
         }
@@ -240,21 +244,41 @@ class MainController extends Controller
             ->with('success', 'Comprovativo enviado! Aguarda confirmação.');
     }
 
-    public function update_profile(Request $request)
+    public function update_account(Request $request)
     {
+        $user = Auth::user();
+
         $validated = $request->validate([
-            'address'         => 'nullable|string|max:255',
-            'bairro'          => 'nullable|string|max:100',
-            'province'        => 'nullable|string|max:100',
-            'reference_point' => 'nullable|string|max:255',
-            'payment_method'  => 'nullable|string|in:BAI,BFA,Multicaixa Express,TPA,Numerário',
-            'phone_number'    => 'nullable|string|max:30',
+            'email'         => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone_number'  => 'nullable|string|max:30',
+            'password'      => 'nullable|string',
+            'new_password'  => 'nullable|string|min:8|same:password_confirm',
         ]);
 
-        DB::table('customer')
-            ->where('user_id', Auth::id())
-            ->update(array_merge($validated, ['updated_at' => now()]));
+        // Se o utilizador quer mudar a senha
+        if ($request->filled('new_password')) {
+            if (!$request->filled('password') || !Hash::check($request->password, $user->password)) {
+                return redirect()->back()->with('error', 'Senha actual incorrecta.');
+            }
+            $user->password = Hash::make($validated['new_password']);
+        }
 
-        return redirect()->back()->with('success', 'Perfil actualizado com sucesso!');
+        // Email
+        if ($validated['email'] !== $user->email) {
+            $user->email = $validated['email'];
+            $user->email_verified_at = null; // força reverificação
+        }
+
+        $user->save();
+
+        // Telefone (na tabela customer)
+        DB::table('customer')
+            ->where('user_id', $user->id)
+            ->update([
+                'phone_number' => $validated['phone_number'] ?? null,
+                'updated_at'   => now(),
+            ]);
+
+        return redirect()->back()->with('success', 'Dados actualizados com sucesso.');
     }
 }
