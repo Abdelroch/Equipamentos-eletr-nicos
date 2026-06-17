@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -14,12 +13,11 @@ Route::group(
         Route::group(
             [
                 'prefix' => 'produto',
-                'as'=> 'visitor.',
+                'as' => 'visitor.',
             ],
             function () {
 
                 Route::get('/{product_slug}/negociar', ['uses' => 'Visitor\MainController@product_details', 'as' => 'negotiate']);
-
             }
         );
 
@@ -27,13 +25,28 @@ Route::group(
             [
                 'prefix' => 'produtos',
                 'as' => 'customer.',
-                'middleware'=>'auth'
+                'middleware' => 'auth'
             ],
             function () {
 
-                Route::group(['prefix'=>'configuracoes/minha-conta', 'as'=>'settings.my_accout.'], function(){
+                Route::group(['prefix' => 'configuracoes/minha-conta', 'as' => 'settings.my_accout.'], function () {
                     Route::get('', ['uses' => 'Customer\MainController@profile', 'as' => 'profile']);
                 });
+                Route::post(
+                    'encomenda/{order_id}/comprovativo',
+                    [
+                        'uses' => 'Customer\MainController@submit_payment_proof',
+                        'as'   => 'submit_payment_proof'
+                    ]
+                );
+
+                Route::post(
+                    'perfil/actualizar',
+                    [
+                        'uses' => 'Customer\MainController@update_profile',
+                        'as'   => 'update_profile'
+                    ]
+                );
 
                 Route::get('solicitacoes', ['uses' => 'Customer\MainController@order_requests', 'as' => 'order_requests']);
                 Route::post('encomenda/negociar', ['uses' => 'Customer\MainController@store_order_negotiation', 'as' => 'store_order_negotiation']);
@@ -52,6 +65,5 @@ Route::group(
 
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 require base_path('routes/admin.php');
-

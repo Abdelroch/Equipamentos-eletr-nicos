@@ -42,6 +42,9 @@ class MainController extends Controller
         $totalPrice      = $proposedPrice + $deliveryCost;
 
         DB::beginTransaction();
+        $customerData = DB::table('customer')
+            ->where('user_id', Auth::id())
+            ->first(['address', 'bairro', 'province', 'reference_point']);
 
         try {
             OrderNegotiation::create([
@@ -51,6 +54,10 @@ class MainController extends Controller
                 'original_price'    => $originalPrice,
                 'proposed_price'    => $proposedPrice,
                 'delivery_cost'     => $deliveryCost,
+                'delivery_address'   => $customerData->address ?? null,
+                'delivery_bairro'    => $customerData->bairro ?? null,
+                'delivery_reference' => $customerData->reference_point ?? null,
+                'delivery_location'  => $customerData->province ?? 'Luanda',
                 'total_price'       => $totalPrice,
                 'delivery_location' => 'Luanda',           // Valor padrão
                 'notes'             => $validated['notes'],
@@ -88,7 +95,9 @@ class MainController extends Controller
         $originalPrice = (float) $product->preco;
         $deliveryCost  = 2500;
         $totalPrice    = $originalPrice + $deliveryCost;
-
+        $customerData = DB::table('customer')
+            ->where('user_id', Auth::id())
+            ->first(['address', 'bairro', 'province', 'reference_point']);
         DB::beginTransaction();
         try {
             OrderNegotiation::create([
@@ -98,6 +107,10 @@ class MainController extends Controller
                 'original_price'    => $originalPrice,
                 'proposed_price'    => $originalPrice, // preço aceite sem negociação
                 'delivery_cost'     => $deliveryCost,
+                'delivery_address'   => $customerData->address ?? null,
+                'delivery_bairro'    => $customerData->bairro ?? null,
+                'delivery_reference' => $customerData->reference_point ?? null,
+                'delivery_location'  => $customerData->province ?? 'Luanda',
                 'total_price'       => $totalPrice,
                 'delivery_location' => 'Luanda',
                 'notes'             => $validated['notes'] ?? null,
@@ -198,5 +211,50 @@ class MainController extends Controller
         return view('customer.profile', [
             'userAuthed' => $user
         ]);
+    }
+    public function submit_payment_proof(Request $request, $order_id)
+    {
+        $validated = $request->validate([
+            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        $order = OrderNegotiation::where('id', $order_id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        if (!in_array($order->status, ['pending', 'accepted'])) {
+            return redirect()->back()
+                ->with('error', 'Não é possível submeter comprovativo para esta encomenda.');
+        }
+
+        $path = $request->file('payment_proof')
+            ->store('payment_proofs', 'public');
+
+        $order->update([
+            'payment_proof'      => $path,
+            'proof_submitted_at' => now(),
+            'status'             => 'awaiting_confirmation',
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Comprovativo enviado! Aguarda confirmação.');
+    }
+
+    public function update_profile(Request $request)
+    {
+        $validated = $request->validate([
+            'address'         => 'nullable|string|max:255',
+            'bairro'          => 'nullable|string|max:100',
+            'province'        => 'nullable|string|max:100',
+            'reference_point' => 'nullable|string|max:255',
+            'payment_method'  => 'nullable|string|in:BAI,BFA,Multicaixa Express,TPA,Numerário',
+            'phone_number'    => 'nullable|string|max:30',
+        ]);
+
+        DB::table('customer')
+            ->where('user_id', Auth::id())
+            ->update(array_merge($validated, ['updated_at' => now()]));
+
+        return redirect()->back()->with('success', 'Perfil actualizado com sucesso!');
     }
 }

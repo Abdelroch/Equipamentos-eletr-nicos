@@ -55,19 +55,18 @@ Route::group([
             Route::get('/admin/reports/labels', [ReportController::class, 'labelsReport'])->name('admin.reports.labels');
             Route::get('/admin/reports/prices', [ReportController::class, 'pricesReport'])->name('admin.reports.prices');
             Route::get('/admin/reports/financial', [ReportController::class, 'financialReport'])->name('admin.reports.financial');
-
         });
 
         // Fornecedores
         Route::resource('admin/gestao/fornecedores', SupplierController::class)
-        ->names([
-            'index' => 'admin.gestao.fornecedores',
-            'create' => 'admin.gestao.fornecedores.create',
-            'store' => 'admin.gestao.fornecedor.cadastrar',
-            'edit' => 'admin.gestao.fornecedor.editar',
-            'update' => 'admin.gestao.fornecedor.atualizar',
-            'destroy' => 'admin.gestao.fornecedor.apagar',
-        ]);
+            ->names([
+                'index' => 'admin.gestao.fornecedores',
+                'create' => 'admin.gestao.fornecedores.create',
+                'store' => 'admin.gestao.fornecedor.cadastrar',
+                'edit' => 'admin.gestao.fornecedor.editar',
+                'update' => 'admin.gestao.fornecedor.atualizar',
+                'destroy' => 'admin.gestao.fornecedor.apagar',
+            ]);
 
         // Vendas
         Route::prefix('/vendas')->group(function () {
@@ -139,7 +138,7 @@ Route::group([
         });
 
         // Saques e Empréstimos
-       Route::prefix('/saques-emprestimos')->group(function () {
+        Route::prefix('/saques-emprestimos')->group(function () {
             Route::get('/', [WithdrawalLoanController::class, 'index'])->name('admin.gestao.withdrawals-loans');
             Route::post('saque/cadastrar', [WithdrawalLoanController::class, 'storeWithdrawal'])->name('admin.gestao.withdrawal.cadastrar');
             Route::post('emprestimo/cadastrar', [WithdrawalLoanController::class, 'storeLoan'])->name('admin.gestao.loan.cadastrar');
@@ -162,14 +161,77 @@ Route::group([
             Route::get('/', [MainController::class, 'list_logs'])->name('admin.gestao.atividades');
         });
         Route::resource('/usuarios', UserController::class)
-        ->names([
-            'index' => 'admin.gestao.usuarios',
-            'create' => 'admin.gestao.usuarios.create',
-            'store' => 'admin.gestao.usuario.cadastrar',
-            'edit' => 'admin.gestao.usuario.editar',
-            'update' => 'admin.gestao.usuario.atualizar',
-            'destroy' => 'admin.gestao.usuario.apagar',
-        ]);
+            ->names([
+                'index' => 'admin.gestao.usuarios',
+                'create' => 'admin.gestao.usuarios.create',
+                'store' => 'admin.gestao.usuario.cadastrar',
+                'edit' => 'admin.gestao.usuario.editar',
+                'update' => 'admin.gestao.usuario.atualizar',
+                'destroy' => 'admin.gestao.usuario.apagar',
+            ]);
+    });
+    // Gestão de Encomendas
+    Route::prefix('encomendas')->group(function () {
+        Route::get(
+            '',
+            [
+                'uses' => 'Admin\OrderNegotiation\MainController@index',
+                'as'   => 'admin.orders.index'
+            ]
+        );
+        Route::get(
+            '{id}/comprovativo',
+            [
+                'uses' => 'Admin\OrderNegotiation\MainController@show_proof',
+                'as'   => 'admin.orders.proof'
+            ]
+        );
+        Route::post(
+            '{id}/aprovar',
+            [
+                'uses' => 'Admin\OrderNegotiation\MainController@approve',
+                'as'   => 'admin.orders.approve'
+            ]
+        );
+        Route::post(
+            '{id}/rejeitar',
+            [
+                'uses' => 'Admin\OrderNegotiation\MainController@reject',
+                'as'   => 'admin.orders.reject'
+            ]
+        );
+    });
+
+    // Gestão de Categorias
+    Route::prefix('categorias')->group(function () {
+        Route::get(
+            '',
+            [
+                'uses' => 'Admin\Categoria\MainController@index',
+                'as'   => 'admin.categorias.index'
+            ]
+        );
+        Route::post(
+            '',
+            [
+                'uses' => 'Admin\Categoria\MainController@store',
+                'as'   => 'admin.categorias.store'
+            ]
+        );
+        Route::put(
+            '{id}',
+            [
+                'uses' => 'Admin\Categoria\MainController@update',
+                'as'   => 'admin.categorias.update'
+            ]
+        );
+        Route::delete(
+            '{id}',
+            [
+                'uses' => 'Admin\Categoria\MainController@destroy',
+                'as'   => 'admin.categorias.destroy'
+            ]
+        );
     });
 
     // Perfil
@@ -181,4 +243,3 @@ Route::group([
 });
 
 require __DIR__ . '/auth.php';
-
