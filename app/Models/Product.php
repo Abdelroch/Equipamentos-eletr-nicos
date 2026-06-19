@@ -12,9 +12,8 @@ class Product extends Model
 {
     use SoftDeletes;
     protected $table = 'product';
-   // protected $fillable = ['nome', 'descricao', 'preco', 'quantidade_disponivel', 'categoria', 'imagem', 'id_fornecedor'];
 
-   protected $guarded = [];
+    protected $guarded = [];
 
     public function supplier()
     {
@@ -31,7 +30,9 @@ class Product extends Model
     }
 
     protected $casts = [
-        'imagens' => 'array', // Converte JSON para array automaticamente
+        'imagens'  => 'array', // Converte JSON para array automaticamente
+        'cores'    => 'array', // Lista de opções de cor, ex: ["Prateado","Dourado"]
+        'tamanhos' => 'array', // Lista de opções de tamanho, ex: ["S","M","L"]
     ];
 
     protected static function booted()

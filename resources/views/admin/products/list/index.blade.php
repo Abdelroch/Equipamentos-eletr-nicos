@@ -41,7 +41,8 @@
                                             </button>
                                         </div>
                                         <div class="mt-3 mb-1 col-6">
-                                            <a href="{{ route('admin.gestao.produtos.deletados') }}" class="btn btn-warning">Ver Produtos Deletados</a>
+                                            <a href="{{ route('admin.gestao.produtos.deletados') }}"
+                                                class="btn btn-warning">Ver Produtos Deletados</a>
                                         </div>
                                     </div>
                                 </div>
@@ -56,7 +57,7 @@
                                             <th>Status</th>
                                             <th>Nome</th>
                                             <th>Descrição</th>
-                                             <th>Preço (KZ)</th>
+                                            <th>Preço (KZ)</th>
                                             <th>Quantidade Disponivel</th>
                                             <th>Categoria</th>
                                             <th>Imgs</th>
@@ -68,142 +69,151 @@
 
                                         <style>
                                             /* .bg-primary{
-                                                background: #54B4D3;
-                                            } */
+                                                    background: #54B4D3;
+                                                } */
                                         </style>
 
                                         @foreach ($data['produtos'] as $produto)
-                                                                                                                                                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                                                                                                                                                <td>{{ $produto->id }}</td>
-                                                                                                                                                                                                                                                                                        <td><strong class="@if ($produto->estado_venda === "disponivel")
-                                                                                                                                                                                                                                                                                            bg-info @elseif ($produto->estado_venda === "reservado") bg-warning
+                                            <tr>
+                                                <td>{{ $produto->id }}</td>
+                                                <td><strong
+                                                        class="@if ($produto->estado_venda === 'disponivel') bg-info @elseif ($produto->estado_venda === 'reservado') bg-warning
 
-                                                                                                                                                                                                                                                                                            @elseif ($produto->estado_venda === "vendido") bg-success
-                                                                                                                                                                                                                                                                                            @else bg-muted
-                                                                                                                                                                                                                                                                                        @endif" style="padding: 0.2rem; color: ">{{ $produto->estado_venda }}</strong></td>
-                                                                                                                                                                                                                                                                                                                                                {{--  <td class="">{{$produto->status}}</td> --}}
-                                                                                                                                                                                                                                                                                                                                                <td>
-                                                                                                                                                                                                                                                                                                                                                    <span
-                                                                                                                                                                                                                                                                                                                                                        class="badge
+                                                                                                                                                                                                                                                                                            @elseif ($produto->estado_venda === 'vendido') bg-success
+                                                                                                                                                                                                                                                                                            @else bg-muted @endif"
+                                                        style="padding: 0.2rem; color: ">{{ $produto->estado_venda }}</strong>
+                                                </td>
+                                                {{--  <td class="">{{$produto->status}}</td> --}}
+                                                <td>
+                                                    <span
+                                                        class="badge
                                                                                                                                                                                                                                                                                                                                                                                     {{ Str::slug($produto->status, '-') == 'bom'
-                                            ? 'bg-success'
-                                            : (Str::slug($produto->status, '-') == 'avariado'
-                                                ? 'bg-danger'
-                                                : (Str::slug($produto->status, '-') == 'em-análise'
-                                                    ? 'bg-warning text-dark'
-                                                    : (Str::slug($produto->status, '-') == 'reparado'
-                                                        ? 'bg-info'
-                                                        : (Str::slug($produto->status, '-') == 'irreparável'
-                                                            ? 'bg-secondary'
-                                                            : 'bg-light text-dark')))) }}
+                                                                                                                                                                                                                                                                                                                                                                                        ? 'bg-success'
+                                                                                                                                                                                                                                                                                                                                                                                        : (Str::slug($produto->status, '-') == 'avariado'
+                                                                                                                                                                                                                                                                                                                                                                                            ? 'bg-danger'
+                                                                                                                                                                                                                                                                                                                                                                                            : (Str::slug($produto->status, '-') == 'em-análise'
+                                                                                                                                                                                                                                                                                                                                                                                                ? 'bg-warning text-dark'
+                                                                                                                                                                                                                                                                                                                                                                                                : (Str::slug($produto->status, '-') == 'reparado'
+                                                                                                                                                                                                                                                                                                                                                                                                    ? 'bg-info'
+                                                                                                                                                                                                                                                                                                                                                                                                    : (Str::slug($produto->status, '-') == 'irreparável'
+                                                                                                                                                                                                                                                                                                                                                                                                        ? 'bg-secondary'
+                                                                                                                                                                                                                                                                                                                                                                                                        : 'bg-light text-dark')))) }}
                                                                                                                                                                                                                                                                                                                                                                                                                 {{ Str::slug($produto->status, '-') == 'extremamente-bom' ? 'bg-success' : '' }}
                                                                                                                                                                                                                                                                                                                                                                                     p-2">
-                                                                                                                                                                                                                                                                                                                                                        {{ $produto->status ?? 'Sem Status' }}
-                                                                                                                                                                                                                                                                                                                                                    </span>
-                                                                                                                                                                                                                                                                                                                                                </td>
-                                                                                                                                                                                                                                                                                                                                                <td>{{ $produto->nome }}</td>
-                                                                                                                                                                                                                                                                                                                                                <td>{{ $produto->descricao }}</td>
-                                                                                                                                                                                                                                                                                                                                                 <td>{{ number_format($produto->preco, 2, ',', '.')}} AOA</td>
-                                                                                                                                                                                                                                                                                                                                                <td>{{ $produto->quantidade_disponivel }}</td>
-                                                                                                                                                                                                                                                                                                                                                <td>{{ $produto->categoria }}</td>
-                                                                                                                                                                                                                                                                                                                                                <td>
-                                                                                                                                                                                                                                                                                                                                                    <button class="btn btn-primary p-2" data-toggle="modal"
-                                                                                                                                                                                                                                                                                                                                                    data-target="#modalImgs{{ $produto->id }}">
-                                                                                                                                                                                                                                                                                                                                                        <i class="ti ti-eye"></i>
-                                                                                                                                                                                                                                                                                                                                                    </button>
-                                                                                                                                                                                                                                                                                                                                                </td>
-                                                                                                                                                                                                                                                                                                                                                <td>{{ date('d/m/y', strtotime($produto->created_at)) }}</td>
+                                                        {{ $produto->status ?? 'Sem Status' }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ $produto->nome }}</td>
+                                                <td>{{ $produto->descricao }}</td>
+                                                <td>{{ number_format($produto->preco, 2, ',', '.') }} AOA</td>
+                                                <td>{{ $produto->quantidade_disponivel }}</td>
+                                                <td>{{ $produto->categoria }}</td>
+                                                <td>
+                                                    <button class="p-2 btn btn-primary" data-toggle="modal"
+                                                        data-target="#modalImgs{{ $produto->id }}">
+                                                        <i class="ti ti-eye"></i>
+                                                    </button>
+                                                </td>
+                                                <td>{{ date('d/m/y', strtotime($produto->created_at)) }}</td>
 
-                                                                                                                                                                                                                                                                                                                                                <td>
-                                                                                                                                                                                                                                                                                                                                                    <div class="dropdown">
-                                                                                                                                                                                                                                                                                                                                                        <button class="btn btn-sm dropdown-toggle" type="button"
-                                                                                                                                                                                                                                                                                                                                                            data-toggle="dropdown" aria-haspopup="true"
-                                                                                                                                                                                                                                                                                                                                                            aria-expanded="false">
-                                                                                                                                                                                                                                                                                                                                                            <span class="sr-only text-muted">Ação</span>
-                                                                                                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                                                                                                        <div class="dropdown-menu dropdown-menu-right">
-                                                                                                                                                                                                                                                                                                                                                            <a class="dropdown-item" href="#" data-toggle="modal"
-                                                                                                                                                                                                                                                                                                                                                                data-target="#modalEdit{{ $produto->id }}">Editar</a>
-                                                                                                                                                                                                                                                                                                                                                            <form
-                                                                                                                                                                                                                                                                                                                                                                action="{{ route('admin.gestao.produto.apagar', ['id' => $produto->id]) }}"
-                                                                                                                                                                                                                                                                                                                                                                method="POST" style="display:inline;"
-                                                                                                                                                                                                                                                                                                                                                                onsubmit="return confirm('Tem certeza que deseja remover este produto?');">
-                                                                                                                                                                                                                                                                                                                                                                @csrf
-                                                                                                                                                                                                                                                                                                                                                                @method('DELETE')
-                                                                                                                                                                                                                                                                                                                                                                <button type="submit"
-                                                                                                                                                                                                                                                                                                                                                                    class="dropdown-item">Remover</button>
-                                                                                                                                                                                                                                                                                                                                                            </form>
-                                                                                                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                </td>
-                                                                                                                                                                                                                                                                                                                                            </tr>
-
-                                                                                                                                                                                                                                                                    {{-- modal-edit {{ $produto->id }} --}}
-                                                                                                                                                                                                                                                                    <div class="modal fade" id="modalEdit{{ $produto->id }}" tabindex="-1"
-                                                                                                                                                                                                                                                                        role="dialog" aria-labelledby="modalEditLabel" aria-hidden="true">
-                                                                                                                                                                                                                                                                        <div class="modal-dialog" role="document">
-                                                                                                                                                                                                                                                                            <div class="modal-content">
-                                                                                                                                                                                                                                                                                <div class="modal-header">
-                                                                                                                                                                                                                                                                                    <h5 class="modal-title" id="modalEditLabel">Editar Produto</h5>
-                                                                                                                                                                                                                                                                                    <button type="button" class="close" data-dismiss="modal"
-                                                                                                                                                                                                                                                                                        aria-label="Close">
-                                                                                                                                                                                                                                                                                        <span aria-hidden="true">&times;</span>
-                                                                                                                                                                                                                                                                                    </button>
-                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                <div class="modal-body">
-                                                                                                                                                                                                                                                                                    @include('admin.products.edit.index')
-
-
-                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                        </div></div>
-
-                                                                                                                                                                                                                                                                        <div class="modal fade" id="modalImgs{{ $produto->id }}" tabindex="-1" role="dialog" aria-labelledby="modalimgsLabel"
-                                                                                                                                                                                                                                                                            aria-hidden="true">
-                                                                                                                                                                                                                                                                            <div class="modal-dialog" role="document">
-                                                                                                                                                                                                                                                                                <div class="modal-content">
-                                                                                                                                                                                                                                                                                    <div class="modal-header">
-                                                                                                                                                                                                                                                                                        <h5 class="modal-title" id="modalimgsLabel">Imagens do Produto: <strong>{{ $produto->nome }}</strong>
-                                                                                                                                                                                                                                                                                        </h5>
-                                                                                                                                                                                                                                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                                                                                                                                                                                                                            <span aria-hidden="true">×</span>
-                                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                    <div class="modal-body">
-                                                                                                                                                                                                                                                                                        @if (is_array($produto->imagens) && !empty($produto->imagens))
-                                                                                                                                                                                                                                                                                            <div class="row">
-                                                                                                                                                                                                                                                                                                <h6>Imagens do Produto:</h6>
-                                                                                                                                                                                                                                                                                                @foreach ($produto->imagens as $imagem)
-                                                                                                                                                                                                                                                                                                    <div class="col-md-3 mb-2">
-                                                                                                                                                                                                                                                                                                        <img src="{{ asset($imagem) }}" alt="Imagem de {{ $produto->nome }}" class="img-thumbnail"
-                                                                                                                                                                                                                                                                                                            style="max-width: 150px; max-height: 150px; object-fit: cover;">
-                                                                                                                                                                                                                                                                                                        <!-- Debug: Mostrar o caminho da imagem -->
-                                                                                                                                                                                                                                                                                                        <p class="small text-muted">{{ $imagem }}</p>
-                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                @endforeach
-                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                        @else
-                                                                                                                                                                                                                                                                                            <p class="text-muted">Nenhuma imagem disponível.</p>
-                                                                                                                                                                                                                                                                                        @endif
-                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                            </div>                                                                                                                                                                                          </div>                                                                                                                                              </div>
-                                        @endforeach
-
-                                        @if ($data['produtos']->isEmpty())
-                                            <tr>
-                                                <td colspan="10" class="text-center text-warning"><b>Nenhum registo
-                                                        encontrado!</b></td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm dropdown-toggle" type="button"
+                                                            data-toggle="dropdown" aria-haspopup="true"
+                                                            aria-expanded="false">
+                                                            <span class="sr-only text-muted">Ação</span>
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#modalEdit{{ $produto->id }}">Editar</a>
+                                                            <form
+                                                                action="{{ route('admin.gestao.produto.apagar', ['id' => $produto->id]) }}"
+                                                                method="POST" style="display:inline;"
+                                                                onsubmit="return confirm('Tem certeza que deseja remover este produto?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                    class="dropdown-item">Remover</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                             </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
+
+                                            {{-- modal-edit {{ $produto->id }} --}}
+                                            <div class="modal fade" id="modalEdit{{ $produto->id }}" tabindex="-1"
+                                                role="dialog" aria-labelledby="modalEditLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="modalEditLabel">Editar Produto</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            @include('admin.products.edit.index')
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal fade" id="modalImgs{{ $produto->id }}" tabindex="-1"
+                                                role="dialog" aria-labelledby="modalimgsLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="modalimgsLabel">Imagens do Produto:
+                                                                <strong>{{ $produto->nome }}</strong>
+                                                            </h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">×</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            @if (is_array($produto->imagens) && !empty($produto->imagens))
+                                                                <div class="row">
+                                                                    <h6>Imagens do Produto:</h6>
+                                                                    @foreach ($produto->imagens as $imagem)
+                                                                        <div class="mb-2 col-md-3">
+                                                                            <img src="{{ asset($imagem) }}"
+                                                                                alt="Imagem de {{ $produto->nome }}"
+                                                                                class="img-thumbnail"
+                                                                                style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                                                                            <!-- Debug: Mostrar o caminho da imagem -->
+                                                                            <p class="small text-muted">{{ $imagem }}
+                                                                            </p>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            @else
+                                                                <p class="text-muted">Nenhuma imagem disponível.</p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                             </div>
+                            @endforeach
+
+                            @if ($data['produtos']->isEmpty())
+                                <tr>
+                                    <td colspan="10" class="text-center text-warning"><b>Nenhum registo
+                                            encontrado!</b></td>
+                                </tr>
+                            @endif
+                            </tbody>
+                            </table>
                         </div>
-                    </div> <!-- simple table -->
-                </div> <!-- end section -->
-            </div> <!-- .col-12 -->
-        </div> <!-- .row -->
+                    </div>
+                </div> <!-- simple table -->
+            </div> <!-- end section -->
+        </div> <!-- .col-12 -->
+    </div> <!-- .row -->
     </div> <!-- .container-fluid -->
 
 

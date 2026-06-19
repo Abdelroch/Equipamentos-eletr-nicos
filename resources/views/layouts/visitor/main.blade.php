@@ -76,17 +76,20 @@
                     <!-- SEARCH BAR -->
                     <div class="col-md-6">
                         <div class="header-search">
-                            <form>
-                                <select class="input-select" style="width: 13rem" name="categoria">
-                                    <option value="all" selected>Todas as categorias</option>
-                                    @foreach ($categorias ?? [] as $cat)
-                                        <option value="{{ $cat->slug }}">{{ $cat->nome }}</option>
-                                    @endforeach
-                                </select>
-                                <input class="input" placeholder="Nome, descrição, preço ou id do producto">
-                                <button class="search-btn">Procurar</button>
-                            </form>
-                        </div>
+    <form action="{{ route('store') }}" method="GET">
+        <select class="input-select" style="width: 13rem" name="categoria">
+            <option value="all" selected>Todas as categorias</option>
+            @foreach ($categorias ?? [] as $cat)
+                <option value="{{ $cat->slug }}" {{ request('categoria') === $cat->slug ? 'selected' : '' }}>
+                    {{ $cat->nome }}
+                </option>
+            @endforeach
+        </select>
+        <input class="input" type="text" name="q" value="{{ request('q') }}"
+               placeholder="Nome, descrição, preço ou id do producto">
+        <button class="search-btn" type="submit">Procurar</button>
+    </form>
+</div>
                     </div>
                     <!-- /SEARCH BAR -->
 

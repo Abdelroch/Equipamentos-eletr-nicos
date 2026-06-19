@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Admin\OrderNegotiation;
 
 use App\Http\Controllers\Controller;
 use App\Models\OrderNegotiation;
-use App\Models\Log;
+use App\Services\OrderNegotiationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class MainController extends Controller
 {
@@ -50,27 +49,48 @@ class MainController extends Controller
     }
 
     /**
-     * Aprovar encomenda
+     * Aceitar proposta (pending → awaiting_confirmation)
      */
     public function approve(Request $request, $id)
     {
         $order = OrderNegotiation::findOrFail($id);
 
-        $order->update([
-            'status'      => 'confirmed',
-            'reviewed_at' => now(),
-            'reviewed_by' => auth()->id(),
-            'admin_notes' => $request->input('admin_notes'),
-        ]);
+        if ($order->status !== 'pending') {
+            return redirect()->back()
+                ->with('error', "Esta encomenda já não está pendente (estado actual: {$order->status}).");
+        }
 
-        Log::create([
-            'user_id'   => auth()->id(),
-            'ip'        => $request->ip(),
-            'accao'     => 'Aprovação de Encomenda',
-            'descricao' => "Encomenda #{$id} aprovada por " . auth()->user()->name,
-        ]);
+        try {
+            OrderNegotiationService::accept($order, auth()->id());
 
-        return redirect()->back()->with('success', "Encomenda #{$id} aprovada!");
+            return redirect()->back()
+                ->with('success', "Encomenda #{$id} aceite! Stock reservado por " .
+                       OrderNegotiationService::RESERVATION_HOURS . "h.");
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * NOVO MÉTODO: Confirmar comprovativo (awaiting_confirmation → confirmed)
+     */
+    public function confirm(Request $request, $id)
+    {
+        $order = OrderNegotiation::findOrFail($id);
+
+        if ($order->status !== 'awaiting_confirmation') {
+            return redirect()->back()
+                ->with('error', "Esta encomenda não pode ser confirmada no estado atual: {$order->status}");
+        }
+
+        try {
+            OrderNegotiationService::confirm($order, auth()->id(), $request->input('admin_notes'));
+
+            return redirect()->back()
+                ->with('success', "Encomenda #{$id} confirmada com sucesso! Receita lançada na contabilidade.");
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -84,19 +104,7 @@ class MainController extends Controller
 
         $order = OrderNegotiation::findOrFail($id);
 
-        $order->update([
-            'status'      => 'rejected',
-            'reviewed_at' => now(),
-            'reviewed_by' => auth()->id(),
-            'admin_notes' => $request->admin_notes,
-        ]);
-
-        Log::create([
-            'user_id'   => auth()->id(),
-            'ip'        => $request->ip(),
-            'accao'     => 'Rejeição de Encomenda',
-            'descricao' => "Encomenda #{$id} rejeitada. Motivo: {$request->admin_notes}",
-        ]);
+        OrderNegotiationService::release($order, 'rejected', auth()->id(), $request->admin_notes);
 
         return redirect()->back()->with('success', "Encomenda #{$id} rejeitada.");
     }

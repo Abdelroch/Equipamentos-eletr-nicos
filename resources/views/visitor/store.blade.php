@@ -219,21 +219,27 @@
                                         </div>
                                     </div>
                                     <div class="add-to-cart" style="display: flex; gap: 0px;">
-    {{-- Negociar --}}
-    <a href="{{ route('visitor.negotiate', ['product_slug' => $product->slug]) }}" style="flex: 1;">
-        <button class="add-to-cart-btn" style="width:90%; background:#d63031;">
-            <i class="fa fa-gavel"></i> Negociar
-        </button>
-    </a>
+    @if($product->quantidade_disponivel > 0 && $product->estado_venda === 'disponivel')
+        {{-- Negociar --}}
+        <a href="{{ route('visitor.negotiate', ['product_slug' => $product->slug]) }}" style="flex: 1;">
+            <button class="add-to-cart-btn" style="width:90%; background:#d63031;">
+                <i class="fa fa-gavel"></i> Negociar
+            </button>
+        </a>
 
-    {{-- Comprar --}}
-    <form method="POST" action="{{ route('customer.store_direct_purchase') }}" style="flex: 1;">
-        @csrf
-        <input type="hidden" name="product_id" value="{{ $product->id }}">
-        <button type="submit" class="add-to-cart-btn" style="width:90%; background:#27ae60;">
-            <i class="fa fa-shopping-cart"></i> Comprar
+        {{-- Comprar --}}
+        <form method="POST" action="{{ route('customer.store_direct_purchase') }}" style="flex: 1;">
+            @csrf
+            <input type="hidden" name="product_id" value="{{ $product->id }}">
+            <button type="submit" class="add-to-cart-btn" style="width:90%; background:#27ae60;">
+                <i class="fa fa-shopping-cart"></i> Comprar
+            </button>
+        </form>
+    @else
+        <button class="add-to-cart-btn" style="width:100%; background:#6c757d; cursor: not-allowed;" disabled>
+            <i class="fa fa-ban"></i> Esgotado
         </button>
-    </form>
+    @endif
 </div>
                                 </div>
 

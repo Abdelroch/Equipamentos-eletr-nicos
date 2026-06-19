@@ -29,27 +29,25 @@ class MainController extends Controller
 {
     public function index()
     {
-
         $data = [
-            'clientes' => Client::count(),
-            'produtos' => Product::count(),
-            'fornecedores' => Supplier::count(),
-            'vendas' => Product::where('estado_venda', 'vendido')->count(),
-            'funcionarios' => Employee::count(),
-            'projetos' => Project::count(),
-            'financeiros' => Financial::count(),
-            'contratos' => Contract::count(),
+            'clientes'      => Client::count(),
+            'produtos'      => Product::count(),
+            'fornecedores'  => Supplier::count(),
+            'vendas'        => Sale::count(),                    // Melhor que contar produtos vendidos
+            'funcionarios'  => Employee::count(),
+            'projetos'      => Project::count(),
+            'financeiros'   => Financial::count(),
+            'contratos'     => Contract::count(),
             'ordens_producao' => ProductionOrder::count(),
-            'impostos' => Tax::count(),
-            'beneficios' => Benefit::count(),
-            'idh_metricas' => IdhMetric::count(),
-            'atividades' => Log::count(),
-            'total_vendas' => Product::where('estado_venda', 'vendido')
-            ->sum(DB::raw('quantidade_disponivel * preco')) ?? 0,
-            'total_despesas' => Budget::where('transaction_type', 'Despesa')->sum('amount') ?? 0,
-            'total_receitas' => Budget::where('transaction_type', 'Receita')->sum('amount') ?? 0,
-            'saldo_orcamento' => Budget::sum('amount') ?? 0,
-            'media_idh' => IdhMetric::avg('value') ?? 0,
+            'impostos'      => Tax::count(),
+            'beneficios'    => Benefit::count(),
+            'idh_metricas'  => IdhMetric::count(),
+            'atividades'    => Log::count(),
+
+            'total_vendas' => Sale::join('product', 'sale.id_product', '=', 'product.id')
+                ->sum(DB::raw('sale.quantidade * product.preco')),
+            'saldo_orcamento' => Budget::sum('balance') ?? 0,
+            'media_idh'     => IdhMetric::avg('value') ?? 0,
         ];
 
         $ultimosClientes = Client::latest()->take(5)->get();
@@ -66,20 +64,23 @@ class MainController extends Controller
         $ultimasMetricasIdh = IdhMetric::latest()->take(5)->get();
         $ultimasAtividades = Log::with('user')->latest()->take(5)->get();
 
-        $vendasPorMes = Sale::join('product', 'sale.id_product', 'product.id')
+       $inicio = Carbon::now()->subMonths(5)->startOfMonth();
+        $vendasPorMesRaw = Sale::join('product', 'sale.id_product', '=', 'product.id')
             ->select(
                 DB::raw('DATE_FORMAT(sale.created_at, "%Y-%m") as mes'),
                 DB::raw('SUM(sale.quantidade * product.preco) as valor_vendas')
             )
-            ->where('sale.created_at', '>=', Carbon::now()->subMonths(6))
+            ->where('sale.created_at', '>=', $inicio)
             ->groupBy('mes')
-            ->orderBy('mes')
-            ->get()
-            ->pluck('valor_vendas', 'mes')
-            ->toArray();
+            ->pluck('valor_vendas', 'mes');
 
-        $meses = array_keys($vendasPorMes);
-        $valoresVendas = array_values($vendasPorMes);
+        $meses = [];
+        $valoresVendas = [];
+        for ($i = 0; $i < 6; $i++) {
+            $chave = $inicio->copy()->addMonths($i)->format('Y-m');
+            $meses[] = $chave;
+            $valoresVendas[] = (float) ($vendasPorMesRaw[$chave] ?? 0);
+        }
 
         return view('admin.dashboard.index', compact(
             'data',
@@ -103,13 +104,9 @@ class MainController extends Controller
         public function list_logs()
     {
         $data['user'] = auth()->user();
-        $data['logs'] = Log::join('users', 'log.user_id', 'users.id')
-            ->select('log.*', 'users.id as user_id', 'users.name as nome_user')
-            ->orderBy('log.id', 'desc')
-            ->get();
+        $data['logs'] = Log::with('user') // assumindo relação Log::user() já definida, como usas no index()
+            ->orderBy('id', 'desc')
+            ->paginate(50);
         return view('admin.logs.table', ['data' => $data]);
     }
-
-    
-
 }

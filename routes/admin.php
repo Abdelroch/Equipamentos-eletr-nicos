@@ -116,6 +116,8 @@ Route::group([
         // Ordens de Produção
         Route::prefix('/ordens-producao')->group(function () {
             Route::get('/', [ProductionOrderController::class, 'index'])->name('admin.gestao.ordens-producao');
+            Route::post('/{id}/confirm', [App\Http\Controllers\Admin\OrderNegotiation\MainController::class, 'confirm'])
+                ->name('admin.orders.confirm');
             Route::post('cadastrar', [ProductionOrderController::class, 'store'])->name('admin.gestao.ordem-producao.cadastrar');
             Route::put('editar/{id}', [ProductionOrderController::class, 'update'])->name('admin.gestao.ordem-producao.editar');
             Route::delete('apagar/{id}', [ProductionOrderController::class, 'destroy'])->name('admin.gestao.ordem-producao.apagar');
@@ -172,6 +174,20 @@ Route::group([
     });
     // Gestão de Encomendas
     Route::prefix('encomendas')->group(function () {
+        /*         Route::get('/admin/reports/orders', [ReportController::class, 'ordersReport'])->name('admin.reports.orders');
+                Route::get('/admin/reports/orders/negociacoes', [ReportController::class, 'orderNegotiationsReport'])->name('admin.reports.orders.negociacoes');
+                Route::get('/admin/reports/orders/comprovativos', [ReportController::class, 'paymentProofsReport'])->name('admin.reports.orders.comprovativos');
+                Route::get('/admin/reports/orders/pendentes', [ReportController::class, 'pendingOrdersReport'])->name('admin.reports.orders.pendentes');
+                Route::get('/admin/reports/orders/aceites', [ReportController::class, 'acceptedOrdersReport'])->name('admin.reports.orders.aceites');
+                Route::get('/admin/reports/orders/rejeitados', [ReportController::class, 'rejectedOrdersReport'])->name('admin.reports.orders.rejeitados');
+                Route::get('/admin/reports/orders/aguardando-confirmacao', [ReportController::class, 'awaitingConfirmationOrdersReport'])->name('admin.reports.orders.aguardando-confirmacao');
+                Route::get('/admin/reports/orders/expirados', [ReportController::class, 'expiredOrdersReport'])->name('admin.reports.orders.expirados');
+        */
+
+        Route::get('/admin/encomendas/confirmar/produto', [App\Http\Controllers\Admin\OrderNegotiation\MainController::class, 'confirmProduct'])
+            ->name('admin.encomendas.confirmar-produto');
+        Route::get('/admin/encomendas/update', [OrderController::class, 'update'])->name('admin.encomendas.update');
+
         Route::get(
             '',
             [

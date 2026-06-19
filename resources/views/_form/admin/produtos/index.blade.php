@@ -128,6 +128,28 @@
         </div>
     </div>
 
+   {{-- Cores Disponíveis --}}
+<div class="col-md-6">
+    <div class="form-group">
+        <label class="col-form-label">Cores Disponíveis <small>(separadas por vírgula)</small></label>
+        <input type="text" class="form-control" name="cores"
+               value="{{ old('cores', isset($produto) && $produto->cores ? implode(', ', $produto->cores) : '') }}"
+               placeholder="Prateado, Preto, Dourado">
+        <small class="text-muted">Deixe em branco se não tiver cores.</small>
+    </div>
+</div>
+
+{{-- Tamanhos Disponíveis --}}
+<div class="col-md-6">
+    <div class="form-group">
+        <label class="col-form-label">Tamanhos Disponíveis <small>(separados por vírgula)</small></label>
+        <input type="text" class="form-control" name="tamanhos"
+               value="{{ old('tamanhos', isset($produto) && $produto->tamanhos ? implode(', ', $produto->tamanhos) : '') }}"
+               placeholder="34mm, 38mm, 42mm">
+        <small class="text-muted">Deixe em branco se não tiver tamanhos.</small>
+    </div>
+</div>
+
     <div class="col-md-12">
         <div class="form-group">
             <label for="supplier_name" class="col-form-label" style="color:black">Nome do Fornecedor:</label>
@@ -223,6 +245,17 @@
             }
         });
     });
+    function confirmarAcao(id, acao) {
+    if (confirm(`Tem certeza que deseja ${acao} esta encomenda?`)) {
+        window.location.href = `{{ route('admin.encomendas.update', '') }}/${id}?acao=${acao}`;
+    }
+}
+
+function confirmarProduto(id) {
+    if (confirm('Confirmar recebimento/validade deste produto?')) {
+        window.location.href = `{{ route('admin.encomendas.confirmar-produto', '') }}/${id}`;
+    }
+}
 </script>
 
 @if ($errors->any())
