@@ -23,6 +23,8 @@ Route::group([
     'prefix' => 'admin',
     'middleware' => ['auth', 'role:admin|gestor|contabilista|marketing|juridico|rh|producao']
 ], function () {
+    Route::post('notificacoes/marcar-lidas', ['uses' => 'Admin\NotificationController@mark_all_read', 'as' => 'admin.notifications.read_all']);
+
     Route::get('/dashboard', [MainController::class, 'index'])->middleware(['auth', 'verified'])->name('admin.dashboard');
 
     Route::prefix('/gestao')->group(function () {
@@ -186,7 +188,7 @@ Route::group([
 
         Route::get('/admin/encomendas/confirmar/produto', [App\Http\Controllers\Admin\OrderNegotiation\MainController::class, 'confirmProduct'])
             ->name('admin.encomendas.confirmar-produto');
-        Route::get('/admin/encomendas/update', [OrderController::class, 'update'])->name('admin.encomendas.update');
+        Route::get('/admin/encomendas/update', [App\Http\Controllers\Admin\OrderNegotiation\MainController::class, 'update'])->name('admin.encomendas.update');
 
         Route::get(
             '',

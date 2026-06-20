@@ -186,19 +186,15 @@ class MainController extends Controller
      */
     public function order_requests()
     {
+        Auth::user()->unreadNotifications->markAsRead();
+
         $requests = OrderNegotiation::join('product', 'product.id', '=', 'order_negotiations.product_id')
-            ->select(
-                'order_negotiations.*',
-                'product.nome as product_name',
-                'product.preco as product_original_price'
-            )
+            ->select('order_negotiations.*', 'product.nome as product_name', 'product.preco as product_original_price')
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
 
-        return view('customer.order-requests', [
-            'order_requests' => $requests
-        ]);
+        return view('customer.order-requests', ['order_requests' => $requests]);
     }
 
     /**

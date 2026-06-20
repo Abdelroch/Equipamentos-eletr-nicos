@@ -13,6 +13,8 @@ class Client extends Model
         'numero',
         'provincia',
         'imagem',
+        'user_id',
+        
     ];
 
     // Relacionamentos
@@ -25,7 +27,7 @@ class Client extends Model
     {
         return $this->hasMany(Contract::class, 'client_id');
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);

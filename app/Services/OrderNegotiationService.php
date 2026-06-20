@@ -6,15 +6,17 @@ use App\Models\OrderNegotiation;
 use App\Models\Product;
 use App\Models\Budget;
 use App\Models\Log;
+use App\Models\User;
+use App\Notifications\NewOrderReceived;
+use App\Notifications\OrderAccepted;
+use App\Notifications\OrderConfirmed;
+use App\Notifications\OrderReleased;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
 
 class OrderNegotiationService
 {
-    /**
-     * Horas de validade da reserva de stock após aceitação,
-     * antes do cliente submeter o comprovativo.
-     */
     public const RESERVATION_HOURS = 24;
 
     /**
@@ -22,29 +24,30 @@ class OrderNegotiationService
      * NÃO mexe em stock — isso só acontece em accept().
      */
     public static function create(array $data): OrderNegotiation
-    {
-        return DB::transaction(function () use ($data) {
-            $product = Product::where('id', $data['product_id'])->lockForUpdate()->firstOrFail();
+{
+    return DB::transaction(function () use ($data) {
+        $product = Product::where('id', $data['product_id'])->lockForUpdate()->firstOrFail();
 
-            if ($product->quantidade_disponivel < ($data['quantity'] ?? 1)) {
-                throw new \RuntimeException('Produto sem stock disponível.');
-            }
+        if ($product->quantidade_disponivel < ($data['quantity'] ?? 1)) {
+            throw new \RuntimeException('Produto sem stock disponível.');
+        }
 
-            return OrderNegotiation::create($data);
-        });
-    }
+        $order = OrderNegotiation::create($data);
 
-    /**
-     * Admin aceita a negociação/proposta de preço.
-     * Reserva o stock e define o prazo de expiração da reserva.
-     *
-     * @throws \RuntimeException se não houver stock suficiente
-     */
+        // Notifica todos os admins — fora da lock do produto, mas ainda
+        // dentro da transação para garantir consistência se algo falhar.
+        $admins = User::where('access_level', 'admin')->get();
+        if ($admins->isNotEmpty()) {
+            \Illuminate\Support\Facades\Notification::send($admins, new NewOrderReceived($order));
+        }
+
+        return $order;
+    });
+}
+
     public static function accept(OrderNegotiation $order, ?int $adminId = null): OrderNegotiation
     {
         return DB::transaction(function () use ($order, $adminId) {
-            // Lock pessimista evita duas aceitações simultâneas venderem
-            // a mesma última unidade em stock (race condition clássica).
             $product = Product::where('id', $order->product_id)->lockForUpdate()->firstOrFail();
 
             if ($product->quantidade_disponivel < $order->quantity) {
@@ -57,8 +60,6 @@ class OrderNegotiationService
 
             $product->update([
                 'quantidade_disponivel' => $novaQuantidade,
-                // Só marca como 'reservado' se esgotou o stock;
-                // se ainda houver unidades, o produto continua 'disponivel' para outros compradores.
                 'estado_venda' => $novaQuantidade <= 0 ? 'reservado' : $product->estado_venda,
             ]);
 
@@ -76,14 +77,13 @@ class OrderNegotiationService
                 'descricao' => "Encomenda #{$order->id} aceite. Stock reservado ({$order->quantity} un.) até {$order->reserved_until}.",
             ]);
 
+            // ⬇️ NOVO: avisa o cliente que a proposta foi aceite e tem prazo para pagar
+            $order->user->notify(new OrderAccepted($order));
+
             return $order->fresh();
         });
     }
 
-    /**
-     * Admin confirma o comprovativo de pagamento.
-     * Aqui — e só aqui — a venda entra na contabilidade (Budget).
-     */
     public static function confirm(OrderNegotiation $order, ?int $adminId = null, ?string $notes = null): OrderNegotiation
     {
         if (!in_array($order->status, ['awaiting_confirmation', 'accepted'])) {
@@ -120,15 +120,13 @@ class OrderNegotiationService
                 'descricao' => "Encomenda #{$order->id} confirmada. Receita de {$order->total_price} Kz lançada no orçamento (budget #{$budgetId}).",
             ]);
 
+            // ⬇️ NOVO: avisa o cliente que a compra foi concluída
+            $order->user->notify(new OrderConfirmed($order));
+
             return $order->fresh();
         });
     }
 
-    /**
-     * Admin rejeita a encomenda, OU o job de expiração actua.
-     * Devolve ao stock a quantidade que tinha sido reservada — só se
-     * a reserva alguma vez chegou a ser feita (status accepted/awaiting_confirmation).
-     */
     public static function release(OrderNegotiation $order, string $newStatus, ?int $adminId = null, ?string $notes = null): OrderNegotiation
     {
         if (!in_array($newStatus, ['rejected', 'cancelled', 'expired'])) {
@@ -170,18 +168,13 @@ class OrderNegotiationService
                 'descricao' => "Encomenda #{$order->id}: {$accao}." . ($wasReserved ? " Stock devolvido ({$order->quantity} un.)." : ' (sem stock reservado a devolver)'),
             ]);
 
+            // ⬇️ NOVO: avisa o cliente — cobre rejected, cancelled, E expired (scheduler incluído)
+            $order->user->notify(new OrderReleased($order));
+
             return $order->fresh();
         });
     }
 
-    /**
-     * Chamado pelo scheduler. Liberta automaticamente todas as reservas
-     * cujo prazo de 24h expirou sem submissão de comprovativo aprovado.
-     *
-     * Nota: encomendas em 'awaiting_confirmation' também expiram se o
-     * admin demorar demais a rever — ajuste a regra abaixo se quiser
-     * que awaiting_confirmation NUNCA expire automaticamente.
-     */
     public static function releaseExpiredReservations(): int
     {
         $expiradas = OrderNegotiation::where('status', 'accepted')

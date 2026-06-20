@@ -80,15 +80,35 @@ class MainController extends Controller
         }
     }
 
-    public function store(){
-        $data['categorias'] = \App\Models\Categoria::where('activa', true)->orderBy('nome')->get();
-        $data['products_featured'] = Product::orderByDesc('created_at')->take(10)->get();
-        $data['products_good'] = Product::orderByDesc('created_at')->where('status', 'Bom')->get();
-        $data['products_very_good'] = Product::orderByDesc('created_at')->where('status', 'Extremamente Bom')->paginate(12);
-        $data['products_monitors'] = Product::orderByDesc('created_at')->where('status', 'Extremamente Bom')->where('categoria', 'monitors')->get();
-        $data['products_sold'] = Product::orderByDesc('created_at')->where('estado_venda', 'vendido')->get();
-        $data['products_carcass'] = Product::orderByDesc('created_at')->where('status', 'Irreparável')->get();
-        return view('visitor.store', $data);
+    public function store(Request $request)
+{
+    $data['categorias'] = \App\Models\Categoria::where('activa', true)->orderBy('nome')->get();
+
+    $query = Product::where('status', 'Extremamente Bom');
+
+    // Busca por texto (nome do header) — agora ligado ao input `q`
+    if ($request->filled('q')) {
+        $termo = $request->q;
+        $query->where(function ($q) use ($termo) {
+            $q->where('nome', 'like', "%{$termo}%")
+              ->orWhere('descricao', 'like', "%{$termo}%")
+              ->orWhere('id', $termo);
+        });
     }
+
+    // Categoria — vem do <select name="categoria"> do header
+    if ($request->filled('categoria') && $request->categoria !== 'all') {
+        $query->where('categoria', $request->categoria);
+    }
+
+    // Marca — vem do carousel "Navegue por Marca" (?marca=jbl)
+    if ($request->filled('marca')) {
+        $query->where('marca', $request->marca);
+    }
+
+    $data['products_very_good'] = $query->orderByDesc('created_at')->paginate(12)->appends($request->query());
+
+    return view('visitor.store', $data);
+}
 
 }

@@ -92,40 +92,25 @@
     </div>
 
     <div class="col-md-6">
-        <div class="form-group">
-            <label for="category" class="col-form-label" style="color:black">Categoria:</label>
-            <select class="form-control @error('category') is-invalid @enderror" id="category" name="category" required>
-                <option value="" disabled {{ old('category', isset($produto) ? $produto->categoria : '') == '' ? 'selected' : '' }}>Selecione uma categoria</option>
-                @foreach ([
-                    'smartphones'    => 'Smartphones',
-                    'laptops'        => 'Laptops',
-                    'desktops'       => 'Computadores Desktop',
-                    'tablets'        => 'Tablets',
-                    'smartwatches'   => 'Smartwatches',
-                    'headphones'     => 'Fones de Ouvido',
-                    'speakers'       => 'Caixas de Som',
-                    'gaming_consoles'=> 'Consoles de Jogos',
-                    'monitors'       => 'Monitores',
-                    'keyboards'      => 'Teclados',
-                    'mice'           => 'Mouses',
-                    'printers'       => 'Impressoras',
-                    'routers'        => 'Roteadores',
-                    'cameras'        => 'Câmeras',
-                    'drones'         => 'Drones',
-                    'memória ram'    => 'Memória Ram',
-                    'hd'             => 'HD',
-                    'accessories'    => 'Acessórios',
-                ] as $value => $label)
-                    <option value="{{ $value }}"
-                        {{ old('category', isset($produto) ? $produto->categoria : '') == $value ? 'selected' : '' }}>
-                        {{ $label }}
-                    </option>
-                @endforeach
-            </select>
-            @error('category')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+        <div class="col-md-6">
+    <div class="form-group">
+        <label for="category" class="col-form-label" style="color:black">Categoria:</label>
+        <select class="form-control @error('category') is-invalid @enderror" id="category" name="category" required>
+            <option value="" disabled {{ old('category', isset($produto) ? $produto->categoria : '') == '' ? 'selected' : '' }}>
+                Selecione uma categoria
+            </option>
+            @foreach ($categorias as $cat)
+                <option value="{{ $cat->slug }}"
+                    {{ old('category', isset($produto) ? $produto->categoria : '') == $cat->slug ? 'selected' : '' }}>
+                    {{ $cat->nome }}
+                </option>
+            @endforeach
+        </select>
+        @error('category')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
     </div>
 
    {{-- Cores Disponíveis --}}

@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
             BenefitSeeder::class,        // Cria benefícios (depende de funcionários)
             IdhMetricSeeder::class,      // Cria métricas IDH
             LogSeeder::class,            // Cria logs (depende de usuários)
+            CategoriasSeeder::class,     // Cria categorias de produtos
+            
         ]);
     }
 }

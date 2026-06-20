@@ -97,13 +97,16 @@
                     <div class="clearfix col-md-3">
                         <div class="header-ctn">
                             @auth
-                                <div>
-                                    <a href="{{ route('customer.order_requests') }}">
-                                        <i class="fa fa-heart-o"></i>
-                                        <span>Solicitações</span>
-                                        <div class="qty">2</div>
-                                    </a>
-                                </div>
+                            <div>
+        <a href="{{ route('customer.order_requests') }}">
+            <i class="fa fa-heart-o"></i>
+            <span>Solicitações</span>
+            @php $unread = Auth::user()->unreadNotifications()->count(); @endphp
+            @if($unread > 0)
+                <div class="qty">{{ $unread }}</div>
+            @endif
+        </a>
+    </div>
                                 <div>
                                     <a href="{{ route('customer.settings.my_accout.profile') }}">
                                         <i class="fa fa-user-o"></i>

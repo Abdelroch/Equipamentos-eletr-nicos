@@ -92,7 +92,7 @@
     <img src="{{ public_path('img/logo/ChatGPT_Image_Apr_5__2025__08_06_17_AM-removebg-preview.png') }}" alt="Marca d'Água" class="watermark">
     <div class="header">
         <img src="{{ public_path('img/logo/Captura_de_ecrã_2025-04-03_083554-removebg-preview.png') }}" alt="Logo da Empresa">
-        <h1>MKPLDA</h1>
+        <h1>BAYQI</h1>
         <h2>Relatório Completo de Produtos</h2>
         <p>Gerado em: {{ $data['reportDate'] }}</p>
     </div>
