@@ -57,7 +57,25 @@
         </div>
     </div>
 
+    {{-- ✅ MARCA — novo campo, não obrigatório --}}
     <div class="col-md-6">
+        <div class="form-group">
+            <label for="marca" class="col-form-label" style="color:black">
+                Marca <small class="text-muted">(ex: Samsung, JBL, Apple)</small>:
+            </label>
+            <input type="text"
+                class="form-control @error('marca') is-invalid @enderror"
+                id="marca"
+                name="marca"
+                value="{{ old('marca', isset($produto) ? $produto->marca : '') }}"
+                placeholder="Deixe em branco se não aplicável">
+            @error('marca')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+
+    <div class="col-md-12">
         <div class="form-group">
             <label for="inform" class="col-form-label" style="color:black">Descrição:</label>
             <textarea name="inform" class="form-control">{{ old('inform', isset($produto) ? $produto->descricao : '') }}</textarea>
@@ -93,47 +111,47 @@
 
     <div class="col-md-6">
         <div class="col-md-6">
-    <div class="form-group">
-        <label for="category" class="col-form-label" style="color:black">Categoria:</label>
-        <select class="form-control @error('category') is-invalid @enderror" id="category" name="category" required>
-            <option value="" disabled {{ old('category', isset($produto) ? $produto->categoria : '') == '' ? 'selected' : '' }}>
-                Selecione uma categoria
-            </option>
-            @foreach ($categorias as $cat)
-                <option value="{{ $cat->slug }}"
-                    {{ old('category', isset($produto) ? $produto->categoria : '') == $cat->slug ? 'selected' : '' }}>
-                    {{ $cat->nome }}
-                </option>
-            @endforeach
-        </select>
-        @error('category')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-</div>
+            <div class="form-group">
+                <label for="category" class="col-form-label" style="color:black">Categoria:</label>
+                <select class="form-control @error('category') is-invalid @enderror" id="category" name="category" required>
+                    <option value="" disabled {{ old('category', isset($produto) ? $produto->categoria : '') == '' ? 'selected' : '' }}>
+                        Selecione uma categoria
+                    </option>
+                    @foreach ($categorias as $cat)
+                        <option value="{{ $cat->slug }}"
+                            {{ old('category', isset($produto) ? $produto->categoria : '') == $cat->slug ? 'selected' : '' }}>
+                            {{ $cat->nome }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('category')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
     </div>
 
-   {{-- Cores Disponíveis --}}
-<div class="col-md-6">
-    <div class="form-group">
-        <label class="col-form-label">Cores Disponíveis <small>(separadas por vírgula)</small></label>
-        <input type="text" class="form-control" name="cores"
-               value="{{ old('cores', isset($produto) && $produto->cores ? implode(', ', $produto->cores) : '') }}"
-               placeholder="Prateado, Preto, Dourado">
-        <small class="text-muted">Deixe em branco se não tiver cores.</small>
+    {{-- Cores Disponíveis --}}
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="col-form-label">Cores Disponíveis <small>(separadas por vírgula)</small></label>
+            <input type="text" class="form-control" name="cores"
+                   value="{{ old('cores', isset($produto) && $produto->cores ? implode(', ', $produto->cores) : '') }}"
+                   placeholder="Prateado, Preto, Dourado">
+            <small class="text-muted">Deixe em branco se não tiver cores.</small>
+        </div>
     </div>
-</div>
 
-{{-- Tamanhos Disponíveis --}}
-<div class="col-md-6">
-    <div class="form-group">
-        <label class="col-form-label">Tamanhos Disponíveis <small>(separados por vírgula)</small></label>
-        <input type="text" class="form-control" name="tamanhos"
-               value="{{ old('tamanhos', isset($produto) && $produto->tamanhos ? implode(', ', $produto->tamanhos) : '') }}"
-               placeholder="34mm, 38mm, 42mm">
-        <small class="text-muted">Deixe em branco se não tiver tamanhos.</small>
+    {{-- Tamanhos Disponíveis --}}
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="col-form-label">Tamanhos Disponíveis <small>(separados por vírgula)</small></label>
+            <input type="text" class="form-control" name="tamanhos"
+                   value="{{ old('tamanhos', isset($produto) && $produto->tamanhos ? implode(', ', $produto->tamanhos) : '') }}"
+                   placeholder="34mm, 38mm, 42mm">
+            <small class="text-muted">Deixe em branco se não tiver tamanhos.</small>
+        </div>
     </div>
-</div>
 
     <div class="col-md-12">
         <div class="form-group">
@@ -179,7 +197,7 @@
         </div>
     </div>
 
-    {{-- Estado da venda e Cliente — só no edit --}}
+    {{-- Estado da venda — só no edit --}}
     @if (isset($produto))
         <div class="col-md-12">
             <div class="form-group">
@@ -230,17 +248,18 @@
             }
         });
     });
-    function confirmarAcao(id, acao) {
-    if (confirm(`Tem certeza que deseja ${acao} esta encomenda?`)) {
-        window.location.href = `{{ route('admin.encomendas.update', '') }}/${id}?acao=${acao}`;
-    }
-}
 
-function confirmarProduto(id) {
-    if (confirm('Confirmar recebimento/validade deste produto?')) {
-        window.location.href = `{{ route('admin.encomendas.confirmar-produto', '') }}/${id}`;
+    function confirmarAcao(id, acao) {
+        if (confirm(`Tem certeza que deseja ${acao} esta encomenda?`)) {
+            window.location.href = `{{ route('admin.encomendas.update', '') }}/${id}?acao=${acao}`;
+        }
     }
-}
+
+    function confirmarProduto(id) {
+        if (confirm('Confirmar recebimento/validade deste produto?')) {
+            window.location.href = `{{ route('admin.encomendas.confirmar-produto', '') }}/${id}`;
+        }
+    }
 </script>
 
 @if ($errors->any())

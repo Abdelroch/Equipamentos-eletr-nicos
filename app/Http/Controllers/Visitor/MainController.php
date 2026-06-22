@@ -15,37 +15,19 @@ use Illuminate\Validation\ValidationException;
 
 class MainController extends Controller
 {
-    public function index()
+    /**
+     * Aplica os filtros de pesquisa, categoria e marca (usado em múltiplas views)
+     */
+    private function applyFilters($query, Request $request, $categorias)
     {
-        $data['products_featured']  = Product::orderByDesc('created_at')->take(10)->get();
-        $data['products_good']      = Product::orderByDesc('created_at')->where('status', 'Bom')->get();
-        $data['products_very_good'] = Product::orderByDesc('created_at')->where('status', 'Extremamente Bom')->where('categoria', 'laptops')->get();
-        $data['products_monitors']  = Product::orderByDesc('created_at')->where('status', 'Extremamente Bom')->where('categoria', 'monitors')->get();
-        $data['products_sold']      = Product::orderByDesc('created_at')->where('estado_venda', 'vendido')->get();
-        $data['products_carcass']   = Product::orderByDesc('created_at')->where('status', 'Irreparável')->get();
-        $data['categorias']         = Categoria::where('activa', true)->orderBy('nome')->get();
-
-        return view('index', $data);
-    }
-
-    public function product_details($product_slug)
-    {
-        $data['product'] = Product::where('slug', $product_slug)->firstOrFail();
-        return view('visitor.product-details', $data);
-    }
-
-    public function store(Request $request)
-    {
-        $categorias = Categoria::where('activa', true)->orderBy('nome')->get();
-
-        $query = Product::whereIn('estado_venda', ['disponivel'])
-            ->whereIn('status', ['Extremamente Bom', 'Bom']);
-
-        // -----------------------------------------------------------------------
-        // Filtro de texto — barra de pesquisa do header (?q=...)
-        // Pesquisa em nome, descricao, marca e id.
-        // -----------------------------------------------------------------------
         $termoPesquisa = null;
+        $categoriaActiva = null;
+        $marcaActiva = null;
+        $marcaInexistente = false;
+
+        // -----------------------------------------------------------------------
+        // Filtro de texto — barra de pesquisa (?q=...)
+        // -----------------------------------------------------------------------
         if ($request->filled('q')) {
             $termoPesquisa = trim($request->q);
             $query->where(function ($q) use ($termoPesquisa) {
@@ -57,11 +39,8 @@ class MainController extends Controller
         }
 
         // -----------------------------------------------------------------------
-        // Filtro de categoria — <select name="categoria"> do header
-        // Tenta pelo slug e depois pelo nome, para cobrir inconsistências em
-        // como o valor foi gravado em product.categoria.
+        // Filtro de categoria (?categoria=...)
         // -----------------------------------------------------------------------
-        $categoriaActiva = null;
         if ($request->filled('categoria') && $request->categoria !== 'all') {
             $categoriaActiva = $categorias->firstWhere('slug', $request->categoria);
             if ($categoriaActiva) {
@@ -73,12 +52,8 @@ class MainController extends Controller
         }
 
         // -----------------------------------------------------------------------
-        // Filtro de marca — carousel "Navegue por Marca" (?marca=jbl)
-        // Case-insensitive: ?marca=JBL e ?marca=jbl dão o mesmo resultado.
+        // Filtro de marca (?marca=...)
         // -----------------------------------------------------------------------
-        $marcaActiva      = null;
-        $marcaInexistente = false;
-
         if ($request->filled('marca')) {
             $marcaActiva = strtolower(trim($request->marca));
             $marcaExiste = Product::whereRaw('LOWER(`marca`) = ?', [$marcaActiva])->exists();
@@ -90,32 +65,122 @@ class MainController extends Controller
             }
         }
 
-        if ($marcaInexistente) {
-    $products       = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 12);
-    $totalSemFiltro = 0;
-} else {
-    $products = $query->orderByDesc('created_at')
-        ->paginate(12)
-        ->appends($request->query());
+        return [
+            'query'              => $query,
+            'termoPesquisa'      => $termoPesquisa,
+            'categoriaActiva'    => $categoriaActiva,
+            'marcaActiva'        => $marcaActiva,
+            'marcaInexistente'   => $marcaInexistente,
+        ];
+    }
 
-            $totalSemFiltro = ($termoPesquisa || $categoriaActiva || $marcaActiva)
+    public function index(Request $request)
+    {
+        $categorias = Categoria::where('activa', true)->orderBy('nome')->get();
+
+        // Aplicar filtros globais
+        $filterData = $this->applyFilters(
+            Product::whereIn('estado_venda', ['disponivel'])
+                   ->whereIn('status', ['Extremamente Bom', 'Bom']),
+            $request,
+            $categorias
+        );
+
+        $query = $filterData['query'];
+
+        $data = [
+            'categorias'         => $categorias,
+            'termoPesquisa'      => $filterData['termoPesquisa'],
+            'categoriaActiva'    => $filterData['categoriaActiva'],
+            'marcaActiva'        => $filterData['marcaActiva'],
+            'marcaInexistente'   => $filterData['marcaInexistente'],
+        ];
+
+        // Se houver filtro de marca inexistente, retorna coleções vazias
+        if ($filterData['marcaInexistente']) {
+            $data['products_featured']   = collect();
+            $data['products_good']       = collect();
+            $data['products_very_good']  = collect();
+            $data['products_monitors']   = collect();
+            $data['products_sold']       = collect();
+            $data['products_carcass']    = collect();
+        } else {
+            $data['products_featured']   = (clone $query)->orderByDesc('created_at')->take(10)->get();
+            $data['products_good']       = (clone $query)->where('status', 'Bom')->get();
+            $data['products_very_good']  = (clone $query)
+                ->where('status', 'Extremamente Bom')
+                ->where('categoria', 'laptops')
+                ->get();
+            $data['products_monitors']   = (clone $query)
+                ->where('status', 'Extremamente Bom')
+                ->where('categoria', 'monitors')
+                ->get();
+            $data['products_sold']       = (clone $query)->where('estado_venda', 'vendido')->get();
+            $data['products_carcass']    = (clone $query)->where('status', 'Irreparável')->get();
+        }
+
+        return view('index', $data);
+    }
+
+    public function product_details(Request $request, $product_slug)
+    {
+        $categorias = Categoria::where('activa', true)->orderBy('nome')->get();
+
+        $filterData = $this->applyFilters(
+            Product::query(), // Não aplicamos filtro na query principal (é produto único)
+            $request,
+            $categorias
+        );
+
+        $data = [
+            'product'            => Product::where('slug', $product_slug)->firstOrFail(),
+            'categorias'         => $categorias,
+            'termoPesquisa'      => $filterData['termoPesquisa'],
+            'categoriaActiva'    => $filterData['categoriaActiva'],
+            'marcaActiva'        => $filterData['marcaActiva'],
+            'marcaInexistente'   => $filterData['marcaInexistente'],
+        ];
+
+        return view('visitor.product-details', $data);
+    }
+
+    public function store(Request $request)
+    {
+        $categorias = Categoria::where('activa', true)->orderBy('nome')->get();
+
+        $baseQuery = Product::whereIn('estado_venda', ['disponivel'])
+            ->whereIn('status', ['Extremamente Bom', 'Bom']);
+
+        $filterData = $this->applyFilters($baseQuery, $request, $categorias);
+
+        if ($filterData['marcaInexistente']) {
+            $products = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 12);
+            $totalSemFiltro = 0;
+        } else {
+            $products = $filterData['query']
+                ->orderByDesc('created_at')
+                ->paginate(12)
+                ->appends($request->query());
+
+            $totalSemFiltro = ($filterData['termoPesquisa'] || $filterData['categoriaActiva'] || $filterData['marcaActiva'])
                 ? Product::whereIn('estado_venda', ['disponivel'])
-                ->whereIn('status', ['Extremamente Bom', 'Bom'])
-                ->count()
+                    ->whereIn('status', ['Extremamente Bom', 'Bom'])
+                    ->count()
                 : null;
         }
 
         return view('visitor.store', [
             'categorias'         => $categorias,
             'products_very_good' => $products,
-            'termoPesquisa'      => $termoPesquisa,
-            'categoriaActiva'    => $categoriaActiva,
-            'marcaActiva'        => $marcaActiva,
-            'marcaInexistente'   => $marcaInexistente,
+            'termoPesquisa'      => $filterData['termoPesquisa'],
+            'categoriaActiva'    => $filterData['categoriaActiva'],
+            'marcaActiva'        => $filterData['marcaActiva'],
+            'marcaInexistente'   => $filterData['marcaInexistente'],
             'totalSemFiltro'     => $totalSemFiltro,
         ]);
     }
 
+    // Método de criação de conta (não precisa de filtros)
     public function customer_create_account(Request $request)
     {
         $validated = $request->validate([

@@ -281,130 +281,115 @@
                         <div class="products-tabs">
                             <!-- tab -->
                             <div id="tab1" class="tab-pane active">
-                                <div class="products-slick" data-nav="#slick-nav-1">
-                                    {{--
-    Coloca este bloco onde actualmente tens o @foreach dos produtos.
-    Substitui toda a secção que itera $products_very_good.
---}}
+    <div class="products-slick" data-nav="#slick-nav-1">
 
-{{-- Barra de contexto: mostra o que está filtrado actualmente --}}
-@if ($termoPesquisa || $categoriaActiva || $marcaActiva)
-    <div class="container" style="margin-bottom: 16px;">
-        <p class="text-muted" style="font-size: 0.9rem;">
-            A mostrar resultados para:
-            @if ($termoPesquisa)
-                <strong>"{{ $termoPesquisa }}"</strong>
-            @endif
-            @if ($categoriaActiva)
-                na categoria <strong>{{ $categoriaActiva->nome }}</strong>
-            @endif
-            @if ($marcaActiva && !$marcaInexistente)
-                marca <strong>{{ strtoupper($marcaActiva) }}</strong>
-            @endif
-            &nbsp;·&nbsp;
-            <a href="{{ route('store') }}">Limpar filtros</a>
-        </p>
-    </div>
-@endif
-
-{{-- Caso 1: Marca pedida via URL mas não existe em nenhum produto do catálogo --}}
-@if ($marcaInexistente)
-    <div class="section">
-        <div class="container">
-            <div class="row">
-                <div class="text-center col-md-12" style="padding: 60px 0;">
-                    <i class="fa fa-search" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
-                    <h3>Marca não encontrada</h3>
-                    <p class="text-muted">
-                        Não temos produtos da marca <strong>{{ strtoupper($marcaActiva) }}</strong> disponíveis
-                        no nosso catálogo de momento.
-                    </p>
-                    <p class="text-muted">
-                        Pode explorar o catálogo completo ou pesquisar por outra marca.
-                    </p>
-                    <a href="{{ route('store') }}" class="btn btn-primary" style="margin-top: 12px;">
-                        Ver todos os produtos
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-{{-- Caso 2: Filtros activos mas sem resultados (pesquisa/categoria sem match) --}}
-@elseif (($termoPesquisa || $categoriaActiva) && $products_very_good->isEmpty())
-    <div class="section">
-        <div class="container">
-            <div class="row">
-                <div class="text-center col-md-12" style="padding: 60px 0;">
-                    <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
-                    <h3>Nenhum produto encontrado</h3>
+        {{-- Barra de contexto de filtros --}}
+        @if ($termoPesquisa || $categoriaActiva || $marcaActiva)
+            <div class="container" style="margin-bottom: 16px;">
+                <p class="text-muted" style="font-size: 0.9rem;">
+                    A mostrar resultados para:
                     @if ($termoPesquisa)
-                        <p class="text-muted">
-                            Não encontrámos produtos para <strong>"{{ $termoPesquisa }}"</strong>.
-                            Experimenta termos diferentes ou verifica a ortografia.
-                        </p>
-                    @elseif ($categoriaActiva)
-                        <p class="text-muted">
-                            Não há produtos disponíveis na categoria
-                            <strong>{{ $categoriaActiva->nome }}</strong> de momento.
-                        </p>
+                        <strong>"{{ $termoPesquisa }}"</strong>
                     @endif
-                    @if ($totalSemFiltro > 0)
-                        <p class="text-muted">
-                            Temos <strong>{{ $totalSemFiltro }}</strong> produtos disponíveis noutras categorias.
-                        </p>
+                    @if ($categoriaActiva)
+                        na categoria <strong>{{ $categoriaActiva->nome }}</strong>
                     @endif
-                    <a href="{{ route('store') }}" class="btn btn-primary" style="margin-top: 12px;">
-                        Ver todos os produtos
-                    </a>
+                    @if ($marcaActiva && !$marcaInexistente)
+                        marca <strong>{{ strtoupper($marcaActiva) }}</strong>
+                    @endif
+                    &nbsp;·&nbsp;
+                    <a href="{{ route('store') }}">Limpar filtros</a>
+                </p>
+            </div>
+        @endif
+
+        {{-- Marca inexistente --}}
+        @if ($marcaInexistente)
+            <div class="section">
+                <div class="container">
+                    <div class="row">
+                        <div class="text-center col-md-12" style="padding: 60px 0;">
+                            <i class="fa fa-search" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                            <h3>Marca não encontrada</h3>
+                            <p class="text-muted">
+                                Não temos produtos da marca <strong>{{ strtoupper($marcaActiva) }}</strong> no momento.
+                            </p>
+                            <a href="{{ route('store') }}" class="btn btn-primary">Ver todos os produtos</a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-{{-- Caso 3: Catálogo vazio (sem filtros, mas sem produtos disponíveis) --}}
-@elseif (!$termoPesquisa && !$categoriaActiva && !$marcaActiva && $products_very_good->isEmpty())
-    <div class="section">
-        <div class="container">
-            <div class="row">
-                <div class="text-center col-md-12" style="padding: 60px 0;">
-                    <i class="fa fa-shopping-cart" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
-                    <h3>Sem produtos disponíveis</h3>
-                    <p class="text-muted">
-                        O catálogo está temporariamente vazio. Volte em breve para ver as novidades.
-                    </p>
+        {{-- Nenhum resultado com filtros --}}
+        @elseif (($termoPesquisa || $categoriaActiva) && $products_very_good->isEmpty())
+            <div class="section">
+                <div class="container">
+                    <div class="row">
+                        <div class="text-center col-md-12" style="padding: 60px 0;">
+                            <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                            <h3>Nenhum produto encontrado</h3>
+                            <p class="text-muted">
+                                @if ($termoPesquisa) Nenhum resultado para "{{ $termoPesquisa }}". @endif
+                                @if ($categoriaActiva) Nenhum produto na categoria {{ $categoriaActiva->nome }}. @endif
+                            </p>
+                            <a href="{{ route('store') }}" class="btn btn-primary">Ver todos os produtos</a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-{{-- Caso 4: Há resultados — renderiza normalmente --}}
-@else
-    <div class="section">
-        <div class="container">
+        {{-- Catálogo vazio --}}
+        @elseif (!$termoPesquisa && !$categoriaActiva && !$marcaActiva && $products_very_good->isEmpty())
+            <div class="section">
+                <div class="container">
+                    <div class="row">
+                        <div class="text-center col-md-12" style="padding: 60px 0;">
+                            <i class="fa fa-shopping-cart" style="font-size: 48px; color: #ccc;"></i>
+                            <h3>Sem produtos disponíveis</h3>
+                            <p class="text-muted">O catálogo está temporariamente vazio.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {{-- Resultados normais --}}
+        @else
             <div class="row">
                 @foreach ($products_very_good as $product)
-                    <div class="col-md-4 col-xs-6">
-                        {{-- O teu card de produto existente vai aqui, sem alteração --}}
-                        @include('visitor.partials.product-card', ['product' => $product])
+                    <div class="mb-4 col-md-4 col-xs-6">
+                        <div class="product">
+                            <div class="product-img">
+                                <img style="height: 240px; object-fit: contain;"
+                                     src="{{ $product->cover_image === null ? asset('visitor/img/no_image.png') : asset($product->cover_image) }}"
+                                     alt="{{ $product->nome }}">
+                            </div>
+                            <div class="product-body">
+                                <p class="product-category">{{ $product->categoria }}</p>
+                                <h3 class="product-name">
+                                    <a href="{{ route('visitor.product.details', $product->slug) }}">
+                                        {{ $product->nome }}
+                                    </a>
+                                </h3>
+                                <h4 class="product-price">
+                                    KZ {{ number_format($product->preco, 2, ',', '.') }}
+                                </h4>
+                                <div class="product-rating">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @endforeach
             </div>
+        @endif
 
-            {{-- Paginação --}}
-            @if ($products_very_good->hasPages())
-                <div class="row">
-                    <div class="text-center col-md-12" style="margin-top: 24px;">
-                        {{ $products_very_good->links() }}
-                    </div>
-                </div>
-            @endif
-        </div>
     </div>
-@endif
-                                </div>
-                                <div id="slick-nav-1" class="products-slick-nav"></div>
-                            </div>
+    <div id="slick-nav-1" class="products-slick-nav"></div>
+</div>
                             <!-- /tab -->
                         </div>
                     </div>

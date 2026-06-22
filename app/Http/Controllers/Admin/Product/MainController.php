@@ -24,7 +24,8 @@ class MainController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('product.nome', 'like', "%{$search}%")
                     ->orWhere('product.descricao', 'like', "%{$search}%")
-                    ->orWhere('product.status', 'like', "%{$search}%");
+                    ->orWhere('product.status', 'like', "%{$search}%")
+                    ->orWhere('product.marca', 'like', "%{$search}%"); // ✅ marca pesquisável
             });
         }
 
@@ -32,8 +33,9 @@ class MainController extends Controller
         return view('admin.products.list.index', ['data' => $data]);
     }
 
-    public function negotiate($product_id){
-
+    public function negotiate($product_id)
+    {
+        //
     }
 
     public function list_trashed()
@@ -47,29 +49,29 @@ class MainController extends Controller
     }
 
     /**
-     * Validação comum para store e update
+     * Validação comum para store e update.
      */
     protected function validateProduct(Request $request)
     {
         return $request->validate([
-            'name' => 'required|string|max:255',
-            'inform' => 'required|string',
-            'price' => 'nullable',
-            'quantity' => 'required|integer|min:0',
-            'category' => 'required|string|max:255',
+            'name'          => 'required|string|max:255',
+            'inform'        => 'required|string',
+            'price'         => 'nullable',
+            'quantity'      => 'required|integer|min:0',
+            'category'      => 'required|string|max:255',
             'supplier_name' => 'required|exists:supplier,id',
-            'status' => 'required',
-            // Cores e tamanhos: opcionais, chegam como string "Prateado, Dourado"
-            // vinda do input de texto separado por vírgula no formulário.
-            'cores' => 'nullable|string|max:500',
-            'tamanhos' => 'nullable|string|max:500',
+            'status'        => 'required',
+            'marca'         => 'nullable|string|max:100', // ✅ não obrigatório
+            // Cores e tamanhos chegam como string "Prateado, Dourado" do input de texto.
+            'cores'         => 'nullable|string|max:500',
+            'tamanhos'      => 'nullable|string|max:500',
         ]);
     }
 
     /**
      * Converte uma string "Prateado, Dourado, Preto" em array limpo
      * ["Prateado","Dourado","Preto"], removendo espaços e entradas vazias.
-     * Devolve null se o campo vier vazio, para não gravar [] sem sentido.
+     * Devolve null se o campo vier vazio, para não gravar [] desnecessário.
      */
     protected function parseOptionsList(?string $raw): ?array
     {
@@ -79,7 +81,7 @@ class MainController extends Controller
 
         $items = array_map('trim', explode(',', $raw));
         $items = array_filter($items, fn($v) => $v !== '');
-        $items = array_values($items); // reindexar
+        $items = array_values($items);
 
         return empty($items) ? null : $items;
     }
@@ -132,16 +134,17 @@ class MainController extends Controller
                 'status'                => $request->status,
                 'quantidade_disponivel' => $validated['quantity'],
                 'categoria'             => $validated['category'],
+                'marca'                 => $validated['marca'] ?? null, // ✅
                 'cores'                 => $this->parseOptionsList($validated['cores'] ?? null),
                 'tamanhos'              => $this->parseOptionsList($validated['tamanhos'] ?? null),
-                'cover_image'           => $coverImagePath,   // substitui 'imagem'
-                'imagens'               => $imagens,          // array JSON
+                'cover_image'           => $coverImagePath,
+                'imagens'               => $imagens,
                 'id_fornecedor'         => $validated['supplier_name'],
             ]);
 
             // Mover imagens da pasta temp para a pasta definitiva do produto
             if ($coverImagePath) {
-                $newFolder    = "imgs/products/product-{$produto->id}";
+                $newFolder     = "imgs/products/product-{$produto->id}";
                 $newPublicPath = public_path($newFolder);
                 if (!File::exists($newPublicPath)) {
                     File::makeDirectory($newPublicPath, 0755, true);
@@ -192,16 +195,14 @@ class MainController extends Controller
         try {
             $produto = Product::findOrFail($id);
 
-            // Processar imagens se enviadas
+            // Processar imagens adicionais se enviadas (adiciona às existentes)
             $imagens = is_array($produto->imagens) ? $produto->imagens : [];
             if ($request->hasFile('imgs')) {
                 $productFolder = "imgs/products/product-{$id}";
-                $publicPath = public_path($productFolder);
-
+                $publicPath    = public_path($productFolder);
                 if (!File::exists($publicPath)) {
                     File::makeDirectory($publicPath, 0755, true);
                 }
-
                 foreach ($request->file('imgs') as $image) {
                     if ($image->isValid()) {
                         $imageName = time() . '-' . Str::random(10) . '.' . $image->getClientOriginalExtension();
@@ -211,24 +212,21 @@ class MainController extends Controller
                 }
             }
 
-            // Processar cover_image se enviada
-            $coverImagePath = $produto->cover_image; // Manter a imagem existente por padrão
+            // Processar cover_image se enviada (substitui a existente)
+            $coverImagePath = $produto->cover_image;
             if ($request->hasFile('cover_image')) {
                 $productFolder = "imgs/products/product-{$id}";
-                $publicPath = public_path($productFolder);
-
+                $publicPath    = public_path($productFolder);
                 if (!File::exists($publicPath)) {
                     File::makeDirectory($publicPath, 0755, true);
                 }
-
                 $coverImage = $request->file('cover_image');
                 if ($coverImage->isValid()) {
-                    // Excluir a imagem de capa anterior, se existir
+                    // Apaga a capa anterior se existir
                     if ($coverImagePath && File::exists(public_path($coverImagePath))) {
                         File::delete(public_path($coverImagePath));
                     }
-
-                    $imageName = time() . '-' . Str::random(10) . '.' . $coverImage->getClientOriginalExtension();
+                    $imageName      = time() . '-' . Str::random(10) . '.' . $coverImage->getClientOriginalExtension();
                     $coverImage->move($publicPath, $imageName);
                     $coverImagePath = "$productFolder/$imageName";
                 }
@@ -241,21 +239,22 @@ class MainController extends Controller
                 'status'                => $request->status,
                 'quantidade_disponivel' => $validated['quantity'],
                 'categoria'             => $validated['category'],
+                'marca'                 => $validated['marca'] ?? null, // ✅
                 'id_fornecedor'         => $validated['supplier_name'],
                 'cores'                 => $this->parseOptionsList($validated['cores'] ?? null),
                 'tamanhos'              => $this->parseOptionsList($validated['tamanhos'] ?? null),
                 'imagens'               => $imagens,
                 'estado_venda'          => $request->estado_venda,
-                'cover_image'           => $coverImagePath, // Novo campo
+                'cover_image'           => $coverImagePath,
             ]);
 
             // Log
             $user_id = auth()->id();
             Log::create([
-                'user_id' => $user_id,
-                'ip' => $request->ip(),
-                'accao' => 'Atualização',
-                'id_user' => $user_id,
+                'user_id'   => $user_id,
+                'ip'        => $request->ip(),
+                'accao'     => 'Atualização',
+                'id_user'   => $user_id,
                 'descricao' => "Usuário {$user_id} atualizou o produto {$produto->nome} com ID {$produto->id}.",
             ]);
 
@@ -275,13 +274,12 @@ class MainController extends Controller
             $produto = Product::withTrashed()->findOrFail($id);
             $produto->restore();
 
-            // Log
             $user_id = auth()->id();
             Log::create([
-                'user_id' => $user_id,
-                'ip' => $request->ip(),
-                'accao' => 'Restauração',
-                'id_user' => $user_id,
+                'user_id'   => $user_id,
+                'ip'        => $request->ip(),
+                'accao'     => 'Restauração',
+                'id_user'   => $user_id,
                 'descricao' => "Usuário {$user_id} restaurou o produto {$produto->nome} com ID {$id}.",
             ]);
 
@@ -297,18 +295,17 @@ class MainController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            $produto = Product::findOrFail($id);
+            $produto     = Product::findOrFail($id);
             $nomeProduto = $produto->nome;
 
             $produto->delete();
 
-            // Log
             $user_id = auth()->id();
             Log::create([
-                'user_id' => $user_id,
-                'ip' => $request->ip(),
-                'accao' => 'Eliminação',
-                'id_user' => $user_id,
+                'user_id'   => $user_id,
+                'ip'        => $request->ip(),
+                'accao'     => 'Eliminação',
+                'id_user'   => $user_id,
                 'descricao' => "Usuário {$user_id} eliminou o produto {$nomeProduto} com ID {$id}.",
             ]);
 

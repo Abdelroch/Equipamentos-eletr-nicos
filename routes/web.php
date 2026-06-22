@@ -16,8 +16,17 @@ Route::group(
                 'as' => 'visitor.',
             ],
             function () {
+// Detalhes do produto
+    Route::get('/{product_slug}', [
+        'uses' => 'Visitor\MainController@product_details',
+        'as' => 'product.details'
+    ]);
 
-                Route::get('/{product_slug}/negociar', ['uses' => 'Visitor\MainController@product_details', 'as' => 'negotiate']);
+    // Negociar produto
+    Route::get('/{product_slug}/negociar', [
+        'uses' => 'Visitor\MainController@product_details',
+        'as' => 'negotiate'
+    ]);
             }
         );
 
