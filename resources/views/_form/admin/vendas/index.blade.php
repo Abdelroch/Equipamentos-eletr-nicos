@@ -1,21 +1,21 @@
 <div class="row" style="margin-bottom: 12px">
     <div class="col-md-12">
         <div class="alert alert-info">
-            Saldo atual do orçamento: {{ number_format(\App\Models\Budget::sum('amount') ?? 0, 2, ',', '.') }} KZ
+            Saldo atual do orçamento: {{ number_format(\App\Models\Budget::sum('amount') ?? 0, 2, ',', '.') }} Kz
         </div>
     </div>
     <div class="col-md-6">
         <div class="form-group">
-            <label for="id_cliente" class="col-form-label" style="color:black">Nome do Cliente:</label>
-            <select class="form-control @error('id_cliente') is-invalid @enderror" id="id_cliente" name="id_cliente" required>
+            <label for="customer_id" class="col-form-label" style="color:black">Nome do Cliente:</label>
+            <select class="form-control @error('customer_id') is-invalid @enderror" id="customer_id" name="customer_id" required>
                 <option value="">Selecione um cliente</option>
-                @foreach ($clients as $client)
-                    <option value="{{ $client->id }}" {{ old('id_cliente', isset($sale) ? $sale->id_cliente : '') == $client->id ? 'selected' : '' }}>
-                        {{ $client->nome }}
+                @foreach ($customers as $customer)
+                    <option value="{{ $customer->id }}" {{ old('customer_id', isset($sale) ? $sale->customer_id : '') == $customer->id ? 'selected' : '' }}>
+                        {{ $customer->nome }}
                     </option>
                 @endforeach
             </select>
-            @error('id_cliente')
+            @error('customer_id')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
@@ -63,20 +63,20 @@
     </div>
     <div class="col-md-6">
         <div class="form-group">
-            <label for="total" class="col-form-label" style="color:black">Total:</label>
-            <input type="text" class="form-control @error('total') is-invalid @enderror"
-                   value="{{ old('total', isset($sale) ? number_format($sale->total, 2, ',', '.') : '') }}"
-                   id="total" name="total" readonly>
-            @error('total')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+            <label for="total_display" class="col-form-label" style="color:black">Total:</label>
+            <input type="text" class="form-control"
+                   value="{{ isset($sale) ? number_format($sale->total, 2, ',', '.') . ' Kz' : '' }}"
+                   id="total_display" readonly>
+            {{-- Campo somente leitura, apenas para visualização: o backend
+                 recalcula o total a partir de preço x quantidade no momento
+                 do submit, então não enviamos este valor formatado. --}}
         </div>
     </div>
 </div>
 
 <div class="row">
     <div class="col-12" style="display: flex; justify-content: flex-end;">
-        <button type="submit" class="btn mb-2 btn-primary" id="submitButton">Salvar</button>
+        <button type="submit" class="mb-2 btn btn-primary" id="submitButton">Salvar</button>
     </div>
 </div>
 
@@ -85,7 +85,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const produtoSelect = document.getElementById('id_product');
             const quantidadeInput = document.getElementById('quantidade');
-            const totalInput = document.getElementById('total');
+            const totalDisplay = document.getElementById('total_display');
             const submitButton = document.getElementById('submitButton');
 
             function calcularTotal() {
@@ -105,10 +105,10 @@
                 }
 
                 const total = preco * quantidade;
-                totalInput.value = total.toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                });
+                totalDisplay.value = total.toLocaleString('pt-PT', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }) + ' Kz';
             }
 
             produtoSelect.addEventListener('change', calcularTotal);

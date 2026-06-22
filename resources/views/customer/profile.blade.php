@@ -120,8 +120,7 @@
                                 </div>
                             </div>
                             <div class="col-lg-8">
-                                <form class="card" action="{{ route('customer.update_account') }}"
-                                    enctype="multipart/form-data" method="POST">
+<form class="card" action="{{ route('customer.settings.my_accout.update_account') }}"                                    enctype="multipart/form-data" method="POST">
                                     @csrf
                                     <div class="card-body">
                                         <h3 class="card-title">Meus dados</h3>

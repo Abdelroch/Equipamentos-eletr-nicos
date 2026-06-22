@@ -26,18 +26,18 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:admin,user',
+        $validated = $request->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|unique:users,email',
+            'password'      => 'required|string|min:8|confirmed',
+            'access_level'  => 'required|in:admin,manager,customer,seller',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'access_level' => $request->access_level,
         ]);
 
         // Log da criação
@@ -64,7 +64,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:6|confirmed',
-            'role' => 'required|in:admin,user',
+            'access_level' => 'required|in:admin,user',
         ]);
 
         $user = User::findOrFail($id);
@@ -73,7 +73,7 @@ class UserController extends Controller
         if ($request->password) {
             $user->password = Hash::make($request->password);
         }
-        $user->role = $request->role;
+        $user->access_level = $request->access_level;
         $user->save();
 
         // Log da atualização

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Client;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Supplier;
@@ -30,10 +29,10 @@ class MainController extends Controller
     public function index()
     {
         $data = [
-            'clientes'      => Client::count(),
+            'clientes' => Customer::count(),
             'produtos'      => Product::count(),
             'fornecedores'  => Supplier::count(),
-            'vendas'        => Sale::count(),                    // Melhor que contar produtos vendidos
+            'vendas'        => Sale::count(),
             'funcionarios'  => Employee::count(),
             'projetos'      => Project::count(),
             'financeiros'   => Financial::count(),
@@ -44,16 +43,32 @@ class MainController extends Controller
             'idh_metricas'  => IdhMetric::count(),
             'atividades'    => Log::count(),
 
-            'total_vendas' => Sale::join('product', 'sale.id_product', '=', 'product.id')
-                ->sum(DB::raw('sale.quantidade * product.preco')),
-            'saldo_orcamento' => Budget::sum('balance') ?? 0,
+            // Antes: Sale::join('product', ...)->sum('sale.quantidade * product.preco')
+            // Isso recalculava a receita com o PREÇO ATUAL do produto, ignorando
+            // preço negociado e mudando retroativamente sempre que o produto era
+            // editado. Além disso, um INNER JOIN com product fazia desaparecer do
+            // total qualquer venda cujo produto tenha sido apagado depois.
+            // sale.total já é o valor real gravado no momento da venda — é a
+            // fonte de verdade, sem depender do estado atual do produto.
+            'total_vendas' => (float) (Sale::sum('total') ?? 0),
+
+            // Antes: Budget::sum('balance') — 'balance' é um snapshot do saldo
+            // ACUMULADO em cada transação, não um valor a somar entre registos.
+            // Somar 'balance' multiplica o saldo real por quantos registos existem.
+            // 'amount' é o valor assinado de cada movimento (+receita / -despesa),
+            // que é exatamente como o BudgetService já calcula o saldo internamente.
+            'saldo_orcamento' => (float) (Budget::sum('amount') ?? 0),
+
             'media_idh'     => IdhMetric::avg('value') ?? 0,
         ];
 
-        $ultimosClientes = Client::latest()->take(5)->get();
+        // Antes: Client::latest()->take(5)->get() — Client é o model legado que
+        // já foi substituído por Customer em todo o resto do sistema.
+        $ultimosClientes = Customer::with('user')->latest()->take(5)->get();
+
         $ultimosProdutos = Product::latest()->take(5)->get();
         $ultimosFornecedores = Supplier::latest()->take(5)->get();
-        $ultimasVendas = Sale::with('client', 'product')->latest()->take(5)->get();
+        $ultimasVendas = Sale::with('customer.user', 'product')->latest()->take(5)->get();
         $ultimosFuncionarios = Employee::latest()->take(5)->get();
         $ultimosProjetos = Project::latest()->take(5)->get();
         $ultimosFinanceiros = Financial::latest()->take(5)->get();
@@ -64,13 +79,16 @@ class MainController extends Controller
         $ultimasMetricasIdh = IdhMetric::latest()->take(5)->get();
         $ultimasAtividades = Log::with('user')->latest()->take(5)->get();
 
-       $inicio = Carbon::now()->subMonths(5)->startOfMonth();
-        $vendasPorMesRaw = Sale::join('product', 'sale.id_product', '=', 'product.id')
-            ->select(
-                DB::raw('DATE_FORMAT(sale.created_at, "%Y-%m") as mes'),
-                DB::raw('SUM(sale.quantidade * product.preco) as valor_vendas')
+        $inicio = Carbon::now()->subMonths(5)->startOfMonth();
+
+        // Antes: precisava de join com product para multiplicar pelo preço atual.
+        // Agora soma direto sale.total — mais simples, mais rápido (sem join) e
+        // já não perde vendas de produtos entretanto apagados.
+        $vendasPorMesRaw = Sale::select(
+                DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
+                DB::raw('SUM(total) as valor_vendas')
             )
-            ->where('sale.created_at', '>=', $inicio)
+            ->where('created_at', '>=', $inicio)
             ->groupBy('mes')
             ->pluck('valor_vendas', 'mes');
 
@@ -101,10 +119,11 @@ class MainController extends Controller
             'valoresVendas',
         ));
     }
-        public function list_logs()
+
+    public function list_logs()
     {
         $data['user'] = auth()->user();
-        $data['logs'] = Log::with('user') // assumindo relação Log::user() já definida, como usas no index()
+        $data['logs'] = Log::with('user')
             ->orderBy('id', 'desc')
             ->paginate(50);
         return view('admin.logs.table', ['data' => $data]);

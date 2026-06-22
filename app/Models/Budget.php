@@ -16,8 +16,16 @@ class Budget extends Model
         'amount',
         'transaction_date',
         'user_id',
+        'category', // faltava aqui — sem isso, $guarded = [] abaixo não tem
+                    // efeito nenhum sobre este campo, e Budget::create() descartava
+                    // 'category' em silêncio, sem erro. Resultado: a validação de
+                    // limite mensal por categoria no BudgetService nunca funcionava
+                    // de verdade, porque getMonthlySpending() filtrava por uma
+                    // coluna que ficava sempre NULL.
     ];
-    Protected $guarded = [];
+
+    protected $guarded = [];
+
     protected $casts = [
         'transaction_date' => 'datetime',
     ];

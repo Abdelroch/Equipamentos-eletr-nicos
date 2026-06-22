@@ -55,7 +55,7 @@
                                                     </div>
                                                 </td>
                                               <td>{{ $sale->id }}</td>
-                                                <td>{{ $sale->client?->nome ?? 'Cliente não encontrado' }}</td>
+                                                <td>{{ $sale->customer?->nome ?? 'Cliente não encontrado' }}</td>
                                                 <td>{{ $sale->product?->nome ?? 'Produto não encontrado' }}</td>
                                                 <td>{{ $sale->product ? number_format($sale->product->preco, 2, ',', '.') : '0,00' }}</td>
                                                 <td>{{ $sale->quantidade }}</td>

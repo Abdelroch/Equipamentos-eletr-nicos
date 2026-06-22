@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Sale extends Model
 {
     protected $table = 'sale';
-    protected $fillable = ['id_cliente', 'id_product', 'quantidade', 'data_venda', 'total', 'budget_id'];
+    protected $fillable = ['customer_id', 'id_product', 'quantidade', 'data_venda', 'total', 'budget_id', 'order_negotiation_id'];
 
-    public function client()
+    public function customer()
     {
-        return $this->belongsTo(Client::class, 'id_cliente');
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 
     public function product()

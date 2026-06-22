@@ -76,20 +76,21 @@
                     <!-- SEARCH BAR -->
                     <div class="col-md-6">
                         <div class="header-search">
-    <form action="{{ route('store') }}" method="GET">
-        <select class="input-select" style="width: 13rem" name="categoria">
-            <option value="all" selected>Todas as categorias</option>
-            @foreach ($categorias ?? [] as $cat)
-                <option value="{{ $cat->slug }}" {{ request('categoria') === $cat->slug ? 'selected' : '' }}>
-                    {{ $cat->nome }}
-                </option>
-            @endforeach
-        </select>
-        <input class="input" type="text" name="q" value="{{ request('q') }}"
-               placeholder="Nome, descrição, preço ou id do producto">
-        <button class="search-btn" type="submit">Procurar</button>
-    </form>
-</div>
+                            <form action="{{ route('store') }}" method="GET">
+                                <select class="input-select" style="width: 13rem" name="categoria">
+                                    <option value="all" selected>Todas as categorias</option>
+                                    @foreach ($categorias ?? [] as $cat)
+                                        <option value="{{ $cat->slug }}"
+                                            {{ request('categoria') === $cat->slug ? 'selected' : '' }}>
+                                            {{ $cat->nome }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input class="input" type="text" name="q" value="{{ request('q') }}"
+                                    placeholder="Nome, descrição, preço ou id do producto">
+                                <button class="search-btn" type="submit">Procurar</button>
+                            </form>
+                        </div>
                     </div>
                     <!-- /SEARCH BAR -->
 
@@ -97,16 +98,16 @@
                     <div class="clearfix col-md-3">
                         <div class="header-ctn">
                             @auth
-                            <div>
-        <a href="{{ route('customer.order_requests') }}">
-            <i class="fa fa-heart-o"></i>
-            <span>Solicitações</span>
-            @php $unread = Auth::user()->unreadNotifications()->count(); @endphp
-            @if($unread > 0)
-                <div class="qty">{{ $unread }}</div>
-            @endif
-        </a>
-    </div>
+                                <div>
+                                    <a href="{{ route('customer.order_requests') }}">
+                                        <i class="fa fa-heart-o"></i>
+                                        <span>Solicitações</span>
+                                        @php $unread = Auth::user()->unreadNotifications()->count(); @endphp
+                                        @if ($unread > 0)
+                                            <div class="qty">{{ $unread }}</div>
+                                        @endif
+                                    </a>
+                                </div>
                                 <div>
                                     <a href="{{ route('customer.settings.my_accout.profile') }}">
                                         <i class="fa fa-user-o"></i>
@@ -215,12 +216,12 @@
 
                                         <!-- Nome (Automático) -->
                                         <input class="input" type="text" id="name" name="name"
-                                            placeholder="Nome completo*" readonly value="{{ old('name') }}"
-                                            style="width: 300px; background: #f8f9fa;">
+                                            placeholder="Nome completo*" value="{{ old('name') }}"
+                                            style="width: 300px;">
 
-                                        <!-- Data de Nascimento (Automático) -->
-                                        <input class="input" type="date" id="birth_date" name="birth_date" readonly
-                                            value="{{ old('birth_date') }}" style="width: 300px; background: #f8f9fa;">
+                                        <input class="input" type="date" id="birth_date" name="birth_date"
+    placeholder="Data de nascimento*"
+    value="{{ old('birth_date') }}" style="width: 300px;">
                                     </div>
 
                                     <div class="row"
@@ -335,60 +336,7 @@
     <!-- Consulta NIF -->
     <!-- Consulta BI - API Andrade Doc -->
     <!-- Consulta BI - API Andrade Doc (com Proxy CORS) -->
-    <script>
-        $(document).ready(function() {
-            console.log("✅ Script de consulta BI carregado");
 
-            const nifInput = document.getElementById('nif');
-            const nameInput = $('#name');
-            const birthInput = $('#birth_date');
-
-            if (!nifInput) return;
-
-            nifInput.addEventListener('input', function() {
-                let nif = this.value.trim().toUpperCase();
-                this.value = nif;
-
-                if (nif.length === 14) {
-                    nameInput.val('Consultando...');
-                    birthInput.val('');
-
-                    // Usando proxy CORS para resolver o bloqueio
-                    const proxyUrl = 'https://corsproxy.io/?';
-                    const apiUrl = `https://identity-lookup.onrender.com/v3/identities/personal/${nif}`;
-
-                    $.ajax({
-                        type: 'GET',
-                        url: proxyUrl + encodeURIComponent(apiUrl),
-                        timeout: 15000,
-                        success: function(data) {
-                            console.log('✅ Sucesso:', data);
-
-                            if (data.fullName) {
-                                nameInput.val(data.fullName);
-                                if (data.dateOfBirth) {
-                                    birthInput.val(data.dateOfBirth);
-                                }
-                            } else {
-                                nameInput.val('Nome não encontrado');
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('❌ Erro:', xhr);
-                            nameInput.val('');
-                            birthInput.val('');
-                            alert(
-                                'Não foi possível consultar o BI no momento. Tente novamente.'
-                                );
-                        }
-                    });
-                } else {
-                    nameInput.val('');
-                    birthInput.val('');
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>

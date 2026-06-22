@@ -50,7 +50,7 @@ class RegisteredUserController extends Controller
             'nif' => null,
             'birth_date' => null,
             'phone_number' => null,
-            'access_level' => 'customer', 
+            'access_level' => 'customer',
         ]);
 
         DB::commit();
