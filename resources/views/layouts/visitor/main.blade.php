@@ -31,28 +31,115 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        /* Badge de admins online */
+        .admin-online-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 183, 66, 0.15);
+            border: 1px solid #ffb742;
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 0.75rem;
+            color: #ffb742;
+            font-weight: 600;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .admin-online-badge .dot {
+            width: 7px;
+            height: 7px;
+            background: #2ecc71;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse-green 1.5s infinite;
+        }
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
+        }
+        /* Link do dashboard para admins */
+        .admin-dash-link {
+            color: #ffb742 !important;
+            font-weight: 600;
+        }
+        .admin-dash-link i {
+            margin-right: 3px;
+        }
     </style>
 </head>
 
 <body>
     <!-- HEADER -->
     <header style="background: black">
+
+        @php
+            /*
+             * Calcula admins/gestores com sessão activa nos últimos 10 minutos.
+             * Usa a tabela `sessions` que o Laravel mantém automaticamente.
+             * Só executa se o utilizador estiver autenticado para evitar
+             * consultas desnecessárias em visitas anónimas.
+             */
+            $adminsOnline = 0;
+            $isAdmin      = false;
+
+            if (auth()->check()) {
+                $currentUser = auth()->user();
+                $adminLevels = ['admin', 'manager', 'gestor'];
+                $isAdmin     = in_array($currentUser->access_level, $adminLevels);
+
+                // Conta sessões activas de admins/gestores nos últimos 10 min
+                $adminsOnline = \Illuminate\Support\Facades\DB::table('sessions')
+                    ->join('users', 'users.id', '=', 'sessions.user_id')
+                    ->whereIn('users.access_level', $adminLevels)
+                    ->where('sessions.last_activity', '>=', now()->subMinutes(10)->timestamp)
+                    ->count();
+            }
+        @endphp
+
         <!-- TOP HEADER -->
         <div class="container">
             <ul class="header-links pull-left">
                 <li><a href="tel:+244-952-281-231"><i class="fa fa-phone"></i> +244-952-281-231</a></li>
-                <li><a href="#"><i class="fa fa-envelope-o"></i> 0040 0000 6140 8348 1014 7 </a></li>
-                <li><a href="#"><i class="fa fa-map-marker"></i> Vila Alice / RUA ANTÓNIO DE CASTRO FEIJÓ </a>
-                </li>
+                <li><a href="#"><i class="fa fa-envelope-o"></i> 0040 0000 6140 8348 1014 7</a></li>
+                <li><a href="#"><i class="fa fa-map-marker"></i> Vila Alice / RUA ANTÓNIO DE CASTRO FEIJÓ</a></li>
             </ul>
             <ul class="header-links pull-right">
                 <li><a href="#">AOA-KZ</a></li>
+
                 @guest
-                    <li><a href="{{ route('login') }}"><i class="fa fa-user-o"></i>Minha conta</a></li>
+                    {{-- Visitante anónimo --}}
+                    <li><a href="{{ route('login') }}"><i class="fa fa-user-o"></i> Minha conta</a></li>
                 @endguest
+
                 @auth
-                    <li><a href="{{ route('customer.settings.my_accout.profile') }}"><i class="fa fa-user-o"></i>
-                            {{ Auth::user()->name }}</a></li>
+                    @if ($isAdmin)
+                        {{-- ===== ADMIN / GESTOR ===== --}}
+
+                        {{-- Badge de admins online (só visível para admins) --}}
+                        <li>
+                            <span class="admin-online-badge">
+                                <span class="dot"></span>
+                                {{ $adminsOnline }} admin{{ $adminsOnline !== 1 ? 's' : '' }} online
+                            </span>
+                        </li>
+
+                        {{-- Link para o dashboard em vez do perfil de cliente --}}
+                        <li>
+                            <a href="{{ route('admin.dashboard') }}" class="admin-dash-link">
+                                <i class="fa fa-tachometer"></i> Dashboard
+                            </a>
+                        </li>
+
+                    @else
+                        {{-- ===== CLIENTE NORMAL ===== --}}
+                        <li>
+                            <a href="{{ route('customer.settings.my_accout.profile') }}">
+                                <i class="fa fa-user-o"></i> {{ Auth::user()->name }}
+                            </a>
+                        </li>
+                    @endif
                 @endauth
             </ul>
         </div>
@@ -66,9 +153,10 @@
                     <div class="col-md-3">
                         <div class="header-logo">
                             <br>
-                            <a href="#" class="logo">
-                                <img src="{{ asset('bayqi.png') }}" alt="" width="280" height="50"
-                                    style="margin-top: 1rem"> </a>
+                            <a href="{{ route('index') }}" class="logo">
+                                <img src="{{ asset('bayqi.png') }}" alt="BAYQI" width="280" height="50"
+                                    style="margin-top: 1rem">
+                            </a>
                         </div>
                     </div>
                     <!-- /LOGO -->
@@ -94,26 +182,49 @@
                     </div>
                     <!-- /SEARCH BAR -->
 
-                    <!-- ACCOUNT -->
+                    <!-- ACCOUNT (ícones do lado direito do header principal) -->
                     <div class="clearfix col-md-3">
                         <div class="header-ctn">
                             @auth
-                                <div>
-                                    <a href="{{ route('customer.order_requests') }}">
-                                        <i class="fa fa-heart-o"></i>
-                                        <span>Solicitações</span>
-                                        @php $unread = Auth::user()->unreadNotifications()->count(); @endphp
-                                        @if ($unread > 0)
-                                            <div class="qty">{{ $unread }}</div>
-                                        @endif
-                                    </a>
-                                </div>
-                                <div>
-                                    <a href="{{ route('customer.settings.my_accout.profile') }}">
-                                        <i class="fa fa-user-o"></i>
-                                        <span>Minha conta</span>
-                                    </a>
-                                </div>
+                                @if ($isAdmin)
+                                    {{-- Admin vê atalho directo para encomendas pendentes --}}
+                                    <div>
+                                        <a href="{{ route('admin.orders.index') }}" class="admin-dash-link">
+                                            <i class="fa fa-shopping-bag"></i>
+                                            <span>Encomendas</span>
+                                            @php
+                                                $pendingOrders = \App\Models\OrderNegotiation::where('status', 'pending')->count();
+                                            @endphp
+                                            @if ($pendingOrders > 0)
+                                                <div class="qty">{{ $pendingOrders }}</div>
+                                            @endif
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a href="{{ route('admin.dashboard') }}" class="admin-dash-link">
+                                            <i class="fa fa-tachometer"></i>
+                                            <span>Dashboard</span>
+                                        </a>
+                                    </div>
+                                @else
+                                    {{-- Cliente normal vê solicitações e conta --}}
+                                    <div>
+                                        <a href="{{ route('customer.order_requests') }}">
+                                            <i class="fa fa-heart-o"></i>
+                                            <span>Solicitações</span>
+                                            @php $unread = Auth::user()->unreadNotifications()->count(); @endphp
+                                            @if ($unread > 0)
+                                                <div class="qty">{{ $unread }}</div>
+                                            @endif
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a href="{{ route('customer.settings.my_accout.profile') }}">
+                                            <i class="fa fa-user-o"></i>
+                                            <span>Minha conta</span>
+                                        </a>
+                                    </div>
+                                @endif
                             @endauth
 
                             <!-- Menu Toggle -->
@@ -143,9 +254,12 @@
                     <li><a href="#">Hot Deal</a></li>
                     <li><a href="#">Sobre Nós</a></li>
                     @auth
-                        <li><a href="{{ route('logout') }}"
-                                onclick="document.getElementById('form-logout').submit();event.preventDefault()">Terminar
-                                sessão</a></li>
+                        <li>
+                            <a href="{{ route('logout') }}"
+                               onclick="document.getElementById('form-logout').submit(); event.preventDefault()">
+                                Terminar sessão
+                            </a>
+                        </li>
                         <form action="{{ route('logout') }}" id="form-logout" style="display: none" method="POST">
                             @csrf
                         </form>
@@ -162,31 +276,34 @@
             <h3 class="title">Navegue por Marca</h3>
             <div class="row" id="marcas-carousel">
                 <div class="text-center col-md-2 col-xs-4">
-                    <a href="{{ route('store') }}?marca=jbl"><img src="{{ asset('visitor/img/marcas/jbl.png') }}"
-                            alt="JBL" class="img-responsive"></a>
+                    <a href="{{ route('store') }}?marca=jbl">
+                        <img src="{{ asset('visitor/img/marcas/jbl.png') }}" alt="JBL" class="img-responsive">
+                    </a>
                 </div>
                 <div class="text-center col-md-2 col-xs-4">
-                    <a href="{{ route('store') }}?marca=samsung"><img
-                            src="{{ asset('visitor/img/marcas/samsung.png') }}" alt="Samsung"
-                            class="img-responsive"></a>
+                    <a href="{{ route('store') }}?marca=samsung">
+                        <img src="{{ asset('visitor/img/marcas/samsung.png') }}" alt="Samsung" class="img-responsive">
+                    </a>
                 </div>
                 <div class="text-center col-md-2 col-xs-4">
-                    <a href="{{ route('store') }}?marca=apple"><img
-                            src="{{ asset('visitor/img/marcas/apple.png') }}" alt="Apple"
-                            class="img-responsive"></a>
+                    <a href="{{ route('store') }}?marca=apple">
+                        <img src="{{ asset('visitor/img/marcas/apple.png') }}" alt="Apple" class="img-responsive">
+                    </a>
                 </div>
                 <div class="text-center col-md-2 col-xs-4">
-                    <a href="{{ route('store') }}?marca=hp"><img src="{{ asset('visitor/img/marcas/hp.png') }}"
-                            alt="HP" class="img-responsive"></a>
+                    <a href="{{ route('store') }}?marca=hp">
+                        <img src="{{ asset('visitor/img/marcas/hp.png') }}" alt="HP" class="img-responsive">
+                    </a>
                 </div>
                 <div class="text-center col-md-2 col-xs-4">
-                    <a href="{{ route('store') }}?marca=lenovo"><img
-                            src="{{ asset('visitor/img/marcas/lenovo-2.png') }}" alt="Lenovo"
-                            class="img-responsive"></a>
+                    <a href="{{ route('store') }}?marca=lenovo">
+                        <img src="{{ asset('visitor/img/marcas/lenovo-2.png') }}" alt="Lenovo" class="img-responsive">
+                    </a>
                 </div>
                 <div class="text-center col-md-2 col-xs-4">
-                    <a href="{{ route('store') }}?marca=lg"><img src="{{ asset('visitor/img/marcas/lg.png') }}"
-                            alt="LG" class="img-responsive"></a>
+                    <a href="{{ route('store') }}?marca=lg">
+                        <img src="{{ asset('visitor/img/marcas/lg.png') }}" alt="LG" class="img-responsive">
+                    </a>
                 </div>
             </div>
         </div>
@@ -269,9 +386,7 @@
                     <div class="text-center col-md-12">
                         <span class="copyright">
                             Copyright &copy;
-                            <script>
-                                document.write(new Date().getFullYear());
-                            </script>
+                            <script>document.write(new Date().getFullYear());</script>
                             All rights reserved | Developed by MeuDeal
                         </span>
                     </div>
@@ -293,7 +408,7 @@
 
     <!-- Carousel Marcas -->
     <script>
-        $(window).on('load', function() {
+        $(window).on('load', function () {
             $('#marcas-carousel').slick({
                 dots: false,
                 infinite: true,
@@ -305,22 +420,11 @@
                 arrows: true,
                 prevArrow: '<button type="button" class="slick-prev"><i class="fa fa-angle-left"></i></button>',
                 nextArrow: '<button type="button" class="slick-next"><i class="fa fa-angle-right"></i></button>',
-                responsive: [{
-                        breakpoint: 1200,
-                        settings: { slidesToShow: 5 }
-                    },
-                    {
-                        breakpoint: 992,
-                        settings: { slidesToShow: 4 }
-                    },
-                    {
-                        breakpoint: 768,
-                        settings: { slidesToShow: 3 }
-                    },
-                    {
-                        breakpoint: 480,
-                        settings: { slidesToShow: 2 }
-                    }
+                responsive: [
+                    { breakpoint: 1200, settings: { slidesToShow: 5 } },
+                    { breakpoint: 992,  settings: { slidesToShow: 4 } },
+                    { breakpoint: 768,  settings: { slidesToShow: 3 } },
+                    { breakpoint: 480,  settings: { slidesToShow: 2 } }
                 ]
             });
         });
@@ -331,7 +435,6 @@
          ============================================================ --}}
 
     @if ($errors->any())
-    {{-- Erros de validação: dispara quando o form é submetido com dados inválidos --}}
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         var mensagens = @json($errors->all());
@@ -346,7 +449,6 @@
     @endif
 
     @if (session('success'))
-    {{-- Mensagem de sucesso genérica --}}
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         swal({
@@ -360,7 +462,6 @@
     @endif
 
     @if (session('warning'))
-    {{-- Aviso (ex: perfil incompleto após registo) --}}
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         swal({
@@ -374,7 +475,6 @@
     @endif
 
     @if (session('error'))
-    {{-- Erro de sessão genérico --}}
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         swal({
@@ -388,5 +488,4 @@
     @endif
 
 </body>
-
 </html>

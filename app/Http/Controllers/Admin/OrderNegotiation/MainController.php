@@ -52,7 +52,6 @@ class MainController extends Controller
 
     /**
      * Aceitar proposta (pending → awaiting_confirmation)
-     * O admin aceita a proposta do cliente; o cliente passa a enviar comprovativo.
      */
     public function approve(Request $request, int $id): RedirectResponse
     {
@@ -74,9 +73,9 @@ class MainController extends Controller
     }
 
     /**
-     * ✅ NOVO: Rejeitar proposta pendente (pending → rejected)
-     * Usado quando a oferta do cliente não faz sentido comercial.
-     * Diferente de reject() que rejeita o comprovativo (awaiting_confirmation → rejected).
+     * Rejeitar proposta pendente (pending → rejected)
+     * Usado quando a oferta do cliente não tem viabilidade comercial.
+     * Usa as colunas reais da tabela: admin_notes, reviewed_at, reviewed_by
      */
     public function reject_negotiation(Request $request, int $id): RedirectResponse
     {
@@ -91,16 +90,17 @@ class MainController extends Controller
 
         $order = OrderNegotiation::findOrFail($id);
 
-        // Só propostas pendentes podem ser rejeitadas por esta via
         if ($order->status !== 'pending') {
             return redirect()->back()
                 ->with('error', "Apenas propostas pendentes podem ser rejeitadas. Estado actual: {$order->status}.");
         }
 
+        // Usa as colunas que existem na tabela (sem rejected_at)
         $order->update([
             'status'      => 'rejected',
             'admin_notes' => $request->admin_notes ?? 'Proposta rejeitada pelo vendedor.',
-            'rejected_at' => now(),
+            'reviewed_at' => now(),
+            'reviewed_by' => auth()->id(),
         ]);
 
         // Notifica o cliente
