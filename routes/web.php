@@ -16,17 +16,17 @@ Route::group(
                 'as' => 'visitor.',
             ],
             function () {
-// Detalhes do produto
-    Route::get('/{product_slug}', [
-        'uses' => 'Visitor\MainController@product_details',
-        'as' => 'product.details'
-    ]);
+                // Detalhes do produto
+                Route::get('/{product_slug}', [
+                    'uses' => 'Visitor\MainController@product_details',
+                    'as' => 'product.details'
+                ]);
 
-    // Negociar produto
-    Route::get('/{product_slug}/negociar', [
-        'uses' => 'Visitor\MainController@product_details',
-        'as' => 'negotiate'
-    ]);
+                // Negociar produto
+                Route::get('/{product_slug}/negociar', [
+                    'uses' => 'Visitor\MainController@product_details',
+                    'as' => 'negotiate'
+                ]);
             }
         );
 
@@ -42,6 +42,7 @@ Route::group(
                     Route::get('', ['uses' => 'Customer\MainController@profile', 'as' => 'profile']);
                     Route::post('', ['uses' => 'Customer\MainController@update_account', 'as' => 'update_account']);
                 });
+
                 Route::post(
                     'encomenda/{order_id}/comprovativo',
                     [
@@ -68,12 +69,7 @@ Route::group(
 
         Route::post('criar-uma-conta', ['uses' => 'Visitor\MainController@customer_create_account', 'as' => 'customer.create_account']);
     }
-
-
-
 );
-
-
 
 require __DIR__ . '/auth.php';
 require base_path('routes/admin.php');

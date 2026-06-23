@@ -211,29 +211,30 @@
                                         style="display: flex; flex-flow: row wrap; justify-content: center; gap: 12px;">
                                         <!-- BI / NIF -->
                                         <input class="input" type="text" id="nif" name="nif"
-                                            placeholder="NIF / Nº do B.I. (14 dígitos)*" maxlength="14"
+                                            placeholder="NIF / Nº do B.I. (14 caracteres)*" maxlength="14"
                                             value="{{ old('nif') }}" style="width: 300px;">
 
-                                        <!-- Nome (Automático) -->
+                                        <!-- Nome -->
                                         <input class="input" type="text" id="name" name="name"
                                             placeholder="Nome completo*" value="{{ old('name') }}"
                                             style="width: 300px;">
 
+                                        <!-- Data de nascimento -->
                                         <input class="input" type="date" id="birth_date" name="birth_date"
-    placeholder="Data de nascimento*"
-    value="{{ old('birth_date') }}" style="width: 300px;">
+                                            placeholder="Data de nascimento*"
+                                            value="{{ old('birth_date') }}" style="width: 300px;">
                                     </div>
 
                                     <div class="row"
                                         style="display: flex; flex-flow: row wrap; justify-content: center; gap: 12px; margin-top: 12px;">
-                                        <!-- Email (Manual) -->
+                                        <!-- Email -->
                                         <input class="input" type="email" name="email" placeholder="Seu e-mail*"
                                             value="{{ old('email') }}" style="width: 300px;">
 
-                                        <!-- Telefone (Manual) -->
+                                        <!-- Telefone -->
                                         <input class="input" type="text" name="phone_number"
-                                            placeholder="Telefone/WhatsApp *" value="{{ old('phone_number') }}"
-                                            style="width: 300px;">
+                                            placeholder="Telefone/WhatsApp — ex: 923456789*"
+                                            value="{{ old('phone_number') }}" style="width: 300px;">
                                     </div>
 
                                     <div class="row"
@@ -306,36 +307,85 @@
                 nextArrow: '<button type="button" class="slick-next"><i class="fa fa-angle-right"></i></button>',
                 responsive: [{
                         breakpoint: 1200,
-                        settings: {
-                            slidesToShow: 5
-                        }
+                        settings: { slidesToShow: 5 }
                     },
                     {
                         breakpoint: 992,
-                        settings: {
-                            slidesToShow: 4
-                        }
+                        settings: { slidesToShow: 4 }
                     },
                     {
                         breakpoint: 768,
-                        settings: {
-                            slidesToShow: 3
-                        }
+                        settings: { slidesToShow: 3 }
                     },
                     {
                         breakpoint: 480,
-                        settings: {
-                            slidesToShow: 2
-                        }
+                        settings: { slidesToShow: 2 }
                     }
                 ]
             });
         });
     </script>
 
-    <!-- Consulta NIF -->
-    <!-- Consulta BI - API Andrade Doc -->
-    <!-- Consulta BI - API Andrade Doc (com Proxy CORS) -->
+    {{-- ============================================================
+         SweetAlert — notificações automáticas de sessão e validação
+         ============================================================ --}}
+
+    @if ($errors->any())
+    {{-- Erros de validação: dispara quando o form é submetido com dados inválidos --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var mensagens = @json($errors->all());
+        swal({
+            title: 'Erro no registo',
+            text: mensagens.join('\n'),
+            icon: 'error',
+            button: 'OK',
+        });
+    });
+    </script>
+    @endif
+
+    @if (session('success'))
+    {{-- Mensagem de sucesso genérica --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        swal({
+            title: 'Sucesso!',
+            text: @json(session('success')),
+            icon: 'success',
+            button: 'OK',
+        });
+    });
+    </script>
+    @endif
+
+    @if (session('warning'))
+    {{-- Aviso (ex: perfil incompleto após registo) --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        swal({
+            title: 'Atenção',
+            text: @json(session('warning')),
+            icon: 'warning',
+            button: 'OK',
+        });
+    });
+    </script>
+    @endif
+
+    @if (session('error'))
+    {{-- Erro de sessão genérico --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        swal({
+            title: 'Erro',
+            text: @json(session('error')),
+            icon: 'error',
+            button: 'OK',
+        });
+    });
+    </script>
+    @endif
 
 </body>
 

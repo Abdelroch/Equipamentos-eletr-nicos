@@ -89,12 +89,12 @@
                                     <td>
                                         @php
                                             $statusBadge = [
-                                                'pending'              => ['warning', 'Pendente'],
-                                                'awaiting_confirmation'=> ['primary', 'Aguarda Confirmação'],
-                                                'confirmed'            => ['success', 'Confirmada'],
-                                                'rejected'             => ['danger', 'Rejeitada'],
-                                                'cancelled'            => ['secondary', 'Cancelada'],
-                                                'expired'              => ['dark', 'Expirada'],
+                                                'pending'               => ['warning',   'Pendente'],
+                                                'awaiting_confirmation' => ['primary',   'Aguarda Confirmação'],
+                                                'confirmed'             => ['success',   'Confirmada'],
+                                                'rejected'              => ['danger',    'Rejeitada'],
+                                                'cancelled'             => ['secondary', 'Cancelada'],
+                                                'expired'               => ['dark',      'Expirada'],
                                             ];
                                             $badge = $statusBadge[$order->status] ?? ['secondary', ucfirst($order->status)];
                                         @endphp
@@ -102,45 +102,126 @@
                                     </td>
                                     <td><small>{{ date('d/m/Y H:i', strtotime($order->created_at)) }}</small></td>
 
-                                    <td style="min-width: 240px;">
-                                        @if($order->status === 'pending')
-                                            <form method="POST" action="{{ route('admin.orders.approve', $order->id) }}" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-warning btn-sm">
-                                                    <i class="fa fa-handshake-o"></i> Aceitar Proposta
-                                                </button>
-                                            </form>
+                                    {{-- ============================================================ --}}
+                                    {{-- COLUNA DE AÇÕES                                            --}}
+                                    {{-- ============================================================ --}}
+                                    <td style="min-width: 260px;">
 
+                                        {{-- Estado: PENDENTE — aceitar proposta OU rejeitar proposta --}}
+                                        @if($order->status === 'pending')
+                                            <div class="gap-1 d-flex flex-column">
+                                                {{-- Aceitar proposta --}}
+                                                <form method="POST" action="{{ route('admin.orders.approve', $order->id) }}">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-warning btn-sm w-100">
+                                                        <i class="fa fa-handshake-o"></i> Aceitar Proposta
+                                                    </button>
+                                                </form>
+
+                                                {{-- ✅ Rejeitar proposta (trigger modal) --}}
+                                                <button type="button"
+                                                        class="btn btn-danger btn-sm w-100"
+                                                        data-toggle="modal"
+                                                        data-target="#modal-rejeitar-proposta-{{ $order->id }}">
+                                                    <i class="fa fa-times"></i> Rejeitar Proposta
+                                                </button>
+                                            </div>
+
+                                        {{-- Estado: AGUARDA CONFIRMAÇÃO — validar ou rejeitar comprovativo --}}
                                         @elseif($order->status === 'awaiting_confirmation')
                                             <div class="gap-2 d-flex flex-column">
-                                                <!-- Confirmar -->
+                                                {{-- Confirmar comprovativo --}}
                                                 <form method="POST" action="{{ route('admin.orders.confirm', $order->id) }}">
                                                     @csrf
-                                                    <input type="text" name="admin_notes" class="mb-1 form-control form-control-sm"
+                                                    <input type="text" name="admin_notes"
+                                                           class="mb-1 form-control form-control-sm"
                                                            placeholder="Nota (opcional)">
                                                     <button type="submit" class="btn btn-success btn-sm w-100">
                                                         <i class="fa fa-check"></i> Confirmar Encomenda
                                                     </button>
                                                 </form>
 
-                                                <!-- Rejeitar -->
+                                                {{-- Rejeitar comprovativo --}}
                                                 <form method="POST" action="{{ route('admin.orders.reject', $order->id) }}">
                                                     @csrf
-                                                    <input type="text" name="admin_notes" class="mb-1 form-control form-control-sm"
+                                                    <input type="text" name="admin_notes"
+                                                           class="mb-1 form-control form-control-sm"
                                                            placeholder="Motivo da rejeição" required>
                                                     <button type="submit" class="btn btn-danger btn-sm w-100">
-                                                        <i class="fa fa-times"></i> Rejeitar
+                                                        <i class="fa fa-times"></i> Rejeitar Comprovativo
                                                     </button>
                                                 </form>
                                             </div>
 
                                         @elseif(in_array($order->status, ['confirmed', 'rejected', 'cancelled', 'expired']))
                                             <span class="text-muted small">Sem ações disponíveis</span>
+
                                         @else
                                             <span class="text-muted">—</span>
                                         @endif
                                     </td>
                                 </tr>
+
+                                {{-- ============================================================ --}}
+                                {{-- MODAL: Rejeitar Proposta Pendente                          --}}
+                                {{-- ============================================================ --}}
+                                <div class="modal fade" id="modal-rejeitar-proposta-{{ $order->id }}"
+                                     tabindex="-1" role="dialog"
+                                     aria-labelledby="modal-rejeitar-label-{{ $order->id }}">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <form method="POST"
+                                                  action="{{ route('admin.orders.reject_negotiation', $order->id) }}">
+                                                @csrf
+
+                                                <div class="text-white modal-header bg-danger">
+                                                    <h5 class="modal-title" id="modal-rejeitar-label-{{ $order->id }}">
+                                                        <i class="fa fa-times-circle"></i> Rejeitar Proposta #{{ $order->id }}
+                                                    </h5>
+                                                    <button type="button" class="text-white close" data-dismiss="modal">
+                                                        <span>&times;</span>
+                                                    </button>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    <p>
+                                                        Tens a certeza que queres rejeitar a proposta de
+                                                        <strong>KZ {{ number_format($order->proposed_price ?? 0, 2, ',', '.') }}</strong>
+                                                        do cliente <strong>{{ $order->customer_name }}</strong>
+                                                        para o produto <strong>{{ $order->product_name }}</strong>?
+                                                    </p>
+                                                    <p class="text-muted" style="font-size: 0.85rem;">
+                                                        Preço original: <strong>KZ {{ number_format($order->original_price ?? 0, 2, ',', '.') }}</strong>
+                                                    </p>
+                                                    <hr>
+                                                    <div class="form-group">
+                                                        <label for="admin_notes_{{ $order->id }}">
+                                                            Motivo da rejeição <span class="text-muted">(opcional)</span>
+                                                        </label>
+                                                        <textarea class="form-control"
+                                                                  name="admin_notes"
+                                                                  id="admin_notes_{{ $order->id }}"
+                                                                  rows="3"
+                                                                  maxlength="500"
+                                                                  placeholder="Ex: Proposta muito abaixo do valor mínimo aceite."></textarea>
+                                                        <small class="text-muted">O cliente será notificado.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                        Cancelar
+                                                    </button>
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="fa fa-times"></i> Confirmar Rejeição
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- /MODAL --}}
+
                                 @empty
                                 <tr>
                                     <td colspan="12" class="py-4 text-center text-muted">

@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determine se o utilizador tem autorização para fazer este pedido.
      */
     public function authorize(): bool
     {
@@ -20,20 +20,32 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * Regras de validação.
      */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email'    => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ];
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * Mensagens de validação em Português.
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required'    => 'O endereço de e-mail é obrigatório.',
+            'email.string'      => 'O endereço de e-mail deve ser um texto válido.',
+            'email.email'       => 'Introduza um endereço de e-mail válido.',
+            'password.required' => 'A senha é obrigatória.',
+            'password.string'   => 'A senha deve ser um texto válido.',
+        ];
+    }
+
+    /**
+     * Tenta autenticar as credenciais do pedido.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -45,7 +57,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'As credenciais introduzidas estão incorrectas. Verifique o e-mail e a senha.',
             ]);
         }
 
@@ -53,7 +65,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Ensure the login request is not rate limited.
+     * Verifica se o utilizador não está bloqueado por demasiadas tentativas.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -68,18 +80,16 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email' => 'Demasiadas tentativas de acesso. Por favor aguarde ' .
+                       ceil($seconds / 60) . ' minuto(s) e tente novamente.',
         ]);
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * Chave única de rate-limiting para este pedido.
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

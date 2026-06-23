@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\IdhMetric\MainController as IdhMetricController;
 use App\Http\Controllers\Admin\Saques\MainController as WithdrawalLoanController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\OrderNegotiation\MainController as OrderNegotiationController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
@@ -29,7 +30,8 @@ Route::group([
 
     Route::prefix('/gestao')->group(function () {
 
-        Route::get('/admin/reports/financial', [App\Http\Controllers\Admin\ReportController::class, 'financialReport'])->name('admin.reports.financial');
+        Route::get('/admin/reports/financial', [ReportController::class, 'financialReport'])->name('admin.reports.financial');
+
         // Clientes
         Route::prefix('/clientes')->group(function () {
             Route::get('/', [ClientController::class, 'index'])->name('admin.gestao.clientes');
@@ -52,21 +54,20 @@ Route::group([
             Route::get('/admin/reports/products/reparado', [ReportController::class, 'reportReparado'])->name('admin.reports.products.reparado');
             Route::get('/admin/reports/products/irreparavel', [ReportController::class, 'reportIrreparavel'])->name('admin.reports.products.irreparavel');
             Route::get('/admin/reports/products', [ReportController::class, 'productReport'])->name('admin.reports.products');
-            Route::get('/admin/reports/products', [ReportController::class, 'productReport'])->name('admin.reports.products');
             Route::get('/admin/reports/sales', [ReportController::class, 'salesReport'])->name('admin.reports.sales');
             Route::get('/admin/reports/labels', [ReportController::class, 'labelsReport'])->name('admin.reports.labels');
             Route::get('/admin/reports/prices', [ReportController::class, 'pricesReport'])->name('admin.reports.prices');
-            Route::get('/admin/reports/financial', [ReportController::class, 'financialReport'])->name('admin.reports.financial');
+            Route::get('/admin/reports/financial', [ReportController::class, 'financialReport'])->name('admin.reports.financial.products');
         });
 
         // Fornecedores
         Route::resource('admin/gestao/fornecedores', SupplierController::class)
             ->names([
-                'index' => 'admin.gestao.fornecedores',
-                'create' => 'admin.gestao.fornecedores.create',
-                'store' => 'admin.gestao.fornecedor.cadastrar',
-                'edit' => 'admin.gestao.fornecedor.editar',
-                'update' => 'admin.gestao.fornecedor.atualizar',
+                'index'   => 'admin.gestao.fornecedores',
+                'create'  => 'admin.gestao.fornecedores.create',
+                'store'   => 'admin.gestao.fornecedor.cadastrar',
+                'edit'    => 'admin.gestao.fornecedor.editar',
+                'update'  => 'admin.gestao.fornecedor.atualizar',
                 'destroy' => 'admin.gestao.fornecedor.apagar',
             ]);
 
@@ -112,14 +113,10 @@ Route::group([
             Route::delete('apagar/{id}', [ContractController::class, 'destroy'])->name('admin.gestao.contrato.apagar');
         });
 
-        Route::get('/admin/reports/financial', [ReportController::class, 'financialReport'])->name('admin.reports.financial');
-        Route::get('/admin/reports/sales', [ReportController::class, 'salesReport'])->name('admin.reports.sales');
-
         // Ordens de Produção
         Route::prefix('/ordens-producao')->group(function () {
             Route::get('/', [ProductionOrderController::class, 'index'])->name('admin.gestao.ordens-producao');
-            Route::post('/{id}/confirm', [App\Http\Controllers\Admin\OrderNegotiation\MainController::class, 'confirm'])
-                ->name('admin.orders.confirm');
+            Route::post('/{id}/confirm', [OrderNegotiationController::class, 'confirm'])->name('admin.orders.confirm');
             Route::post('cadastrar', [ProductionOrderController::class, 'store'])->name('admin.gestao.ordem-producao.cadastrar');
             Route::put('editar/{id}', [ProductionOrderController::class, 'update'])->name('admin.gestao.ordem-producao.editar');
             Route::delete('apagar/{id}', [ProductionOrderController::class, 'destroy'])->name('admin.gestao.ordem-producao.apagar');
@@ -164,91 +161,73 @@ Route::group([
         Route::prefix('/atividades')->group(function () {
             Route::get('/', [MainController::class, 'list_logs'])->name('admin.gestao.atividades');
         });
+
         Route::resource('/usuarios', UserController::class)
             ->names([
-                'index' => 'admin.gestao.usuarios',
-                'create' => 'admin.gestao.usuarios.create',
-                'store' => 'admin.gestao.usuario.cadastrar',
-                'edit' => 'admin.gestao.usuario.editar',
-                'update' => 'admin.gestao.usuario.atualizar',
+                'index'   => 'admin.gestao.usuarios',
+                'create'  => 'admin.gestao.usuarios.create',
+                'store'   => 'admin.gestao.usuario.cadastrar',
+                'edit'    => 'admin.gestao.usuario.editar',
+                'update'  => 'admin.gestao.usuario.atualizar',
                 'destroy' => 'admin.gestao.usuario.apagar',
             ]);
     });
-    // Gestão de Encomendas
-    Route::prefix('encomendas')->group(function () {
-        /*         Route::get('/admin/reports/orders', [ReportController::class, 'ordersReport'])->name('admin.reports.orders');
-                Route::get('/admin/reports/orders/negociacoes', [ReportController::class, 'orderNegotiationsReport'])->name('admin.reports.orders.negociacoes');
-                Route::get('/admin/reports/orders/comprovativos', [ReportController::class, 'paymentProofsReport'])->name('admin.reports.orders.comprovativos');
-                Route::get('/admin/reports/orders/pendentes', [ReportController::class, 'pendingOrdersReport'])->name('admin.reports.orders.pendentes');
-                Route::get('/admin/reports/orders/aceites', [ReportController::class, 'acceptedOrdersReport'])->name('admin.reports.orders.aceites');
-                Route::get('/admin/reports/orders/rejeitados', [ReportController::class, 'rejectedOrdersReport'])->name('admin.reports.orders.rejeitados');
-                Route::get('/admin/reports/orders/aguardando-confirmacao', [ReportController::class, 'awaitingConfirmationOrdersReport'])->name('admin.reports.orders.aguardando-confirmacao');
-                Route::get('/admin/reports/orders/expirados', [ReportController::class, 'expiredOrdersReport'])->name('admin.reports.orders.expirados');
-        */
 
-        Route::get('/admin/encomendas/confirmar/produto', [App\Http\Controllers\Admin\OrderNegotiation\MainController::class, 'confirmProduct'])
-            ->name('admin.encomendas.confirmar-produto');
-        Route::get('/admin/encomendas/update', [App\Http\Controllers\Admin\OrderNegotiation\MainController::class, 'update'])->name('admin.encomendas.update');
+    // =========================================================================
+    // Gestão de Encomendas & Negociações
+    // =========================================================================
+    Route::prefix('encomendas')->group(function () {
 
         Route::get(
             '',
-            [
-                'uses' => 'Admin\OrderNegotiation\MainController@index',
-                'as'   => 'admin.orders.index'
-            ]
-        );
+            [OrderNegotiationController::class, 'index']
+        )->name('admin.orders.index');
+
         Route::get(
             '{id}/comprovativo',
-            [
-                'uses' => 'Admin\OrderNegotiation\MainController@show_proof',
-                'as'   => 'admin.orders.proof'
-            ]
-        );
+            [OrderNegotiationController::class, 'show_proof']
+        )->name('admin.orders.proof');
+
         Route::post(
             '{id}/aprovar',
-            [
-                'uses' => 'Admin\OrderNegotiation\MainController@approve',
-                'as'   => 'admin.orders.approve'
-            ]
-        );
+            [OrderNegotiationController::class, 'approve']
+        )->name('admin.orders.approve');
+
+        Route::post(
+            '{id}/confirmar',
+            [OrderNegotiationController::class, 'confirm']
+        )->name('admin.orders.confirm');
+
         Route::post(
             '{id}/rejeitar',
-            [
-                'uses' => 'Admin\OrderNegotiation\MainController@reject',
-                'as'   => 'admin.orders.reject'
-            ]
-        );
+            [OrderNegotiationController::class, 'reject']
+        )->name('admin.orders.reject');
+
+        // ✅ NOVO: Rejeitar proposta pendente (antes de aceitar)
+        Route::post(
+            '{id}/rejeitar-proposta',
+            [OrderNegotiationController::class, 'reject_negotiation']
+        )->name('admin.orders.reject_negotiation');
+
     });
 
     // Gestão de Categorias
     Route::prefix('categorias')->group(function () {
         Route::get(
             '',
-            [
-                'uses' => 'Admin\Categoria\MainController@index',
-                'as'   => 'admin.categorias.index'
-            ]
+            ['uses' => 'Admin\Categoria\MainController@index', 'as' => 'admin.categorias.index']
         );
         Route::post(
             '',
-            [
-                'uses' => 'Admin\Categoria\MainController@store',
-                'as'   => 'admin.categorias.store'
-            ]
+            ['uses' => 'Admin\Categoria\MainController@store', 'as' => 'admin.categorias.store']
         );
         Route::put(
             '{id}',
-            [
-                'uses' => 'Admin\Categoria\MainController@update',
-                'as'   => 'admin.categorias.update'
-            ]
+            ['uses' => 'Admin\Categoria\MainController@update', 'as' => 'admin.categorias.update']
         );
         Route::delete(
             '{id}',
-            [
-                'uses' => 'Admin\Categoria\MainController@destroy',
-                'as'   => 'admin.categorias.destroy'
-            ]
+            ['uses' => 'Admin\Categoria\MainController@destroy', 'as' => 'admin.categorias.destroy']
         );
     });
 
