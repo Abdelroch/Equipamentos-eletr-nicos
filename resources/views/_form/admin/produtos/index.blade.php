@@ -10,7 +10,7 @@
 
 <div class="row" style="margin-bottom: 12px">
 
-    {{-- ✅ Imagem de Capa - aparece sempre (create e edit) --}}
+    {{-- Imagem de Capa --}}
     <div class="col-md-12">
         <div class="form-group">
             <label class="col-form-label" style="color:black">
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    {{-- ✅ Imagens adicionais - aparece sempre --}}
+    {{-- Imagens adicionais --}}
     <div class="col-md-12">
         <div class="form-group">
             <label class="col-form-label" style="color:black">
@@ -46,6 +46,7 @@
         </div>
     </div>
 
+    {{-- Nome --}}
     <div class="col-md-6">
         <div class="form-group">
             <label for="name" class="col-form-label" style="color:black">Nome do Produto:</label>
@@ -57,7 +58,7 @@
         </div>
     </div>
 
-    {{-- ✅ MARCA — novo campo, não obrigatório --}}
+    {{-- Marca --}}
     <div class="col-md-6">
         <div class="form-group">
             <label for="marca" class="col-form-label" style="color:black">
@@ -75,16 +76,29 @@
         </div>
     </div>
 
+    {{-- Descrição --}}
     <div class="col-md-12">
         <div class="form-group">
-            <label for="inform" class="col-form-label" style="color:black">Descrição:</label>
-            <textarea name="inform" class="form-control">{{ old('inform', isset($produto) ? $produto->descricao : '') }}</textarea>
+            <label for="inform" class="col-form-label" style="color:black">
+                Descrição:
+                <small class="text-muted">(máx. 300 caracteres)</small>
+            </label>
+            <textarea name="inform" id="inform" class="form-control @error('inform') is-invalid @enderror"
+                      rows="3" maxlength="300"
+                      style="resize: vertical; min-height: 80px; max-height: 160px;"
+            >{{ old('inform', isset($produto) ? $produto->descricao : '') }}</textarea>
+            <div class="mt-1 d-flex justify-content-end">
+                <small id="inform-counter" class="text-muted">
+                    <span id="inform-used">0</span>/300
+                </small>
+            </div>
             @error('inform')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
     </div>
 
+    {{-- Preço --}}
     <div class="col-md-12">
         <div class="form-group">
             <label for="price" class="col-form-label" style="color:black">Preço (KZ):</label>
@@ -97,6 +111,7 @@
         </div>
     </div>
 
+    {{-- Quantidade --}}
     <div class="col-md-6">
         <div class="form-group">
             <label for="quantity" class="col-form-label" style="color:black">Quantidade Disponível:</label>
@@ -109,6 +124,7 @@
         </div>
     </div>
 
+    {{-- Categoria --}}
     <div class="col-md-6">
         <div class="col-md-6">
             <div class="form-group">
@@ -131,7 +147,7 @@
         </div>
     </div>
 
-    {{-- Cores Disponíveis --}}
+    {{-- Cores --}}
     <div class="col-md-6">
         <div class="form-group">
             <label class="col-form-label">Cores Disponíveis <small>(separadas por vírgula)</small></label>
@@ -142,7 +158,7 @@
         </div>
     </div>
 
-    {{-- Tamanhos Disponíveis --}}
+    {{-- Tamanhos --}}
     <div class="col-md-6">
         <div class="form-group">
             <label class="col-form-label">Tamanhos Disponíveis <small>(separados por vírgula)</small></label>
@@ -153,6 +169,7 @@
         </div>
     </div>
 
+    {{-- Fornecedor --}}
     <div class="col-md-12">
         <div class="form-group">
             <label for="supplier_name" class="col-form-label" style="color:black">Nome do Fornecedor:</label>
@@ -172,6 +189,7 @@
         </div>
     </div>
 
+    {{-- Status --}}
     <div class="col-md-12">
         <div class="form-group">
             <label for="status" class="col-form-label" style="color:black">Status:</label>
@@ -230,11 +248,26 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Contador de caracteres da descrição ---
+        const informTA  = document.getElementById('inform');
+        const informUsed = document.getElementById('inform-used');
+        if (informTA && informUsed) {
+            const max = parseInt(informTA.getAttribute('maxlength'), 10);
+            const update = () => {
+                const len = informTA.value.length;
+                informUsed.textContent = len;
+                informUsed.style.color = len >= max ? '#dc3545' : (len >= max * 0.85 ? '#fd7e14' : '');
+            };
+            update(); // estado inicial (útil no edit onde já vem texto)
+            informTA.addEventListener('input', update);
+        }
+
+        // --- Formatação do preço ---
         const priceInput = document.getElementById('price');
         if (!priceInput) return;
 
-        priceInput.addEventListener('input', function(e) {
+        priceInput.addEventListener('input', function (e) {
             let value = e.target.value.replace(/[^0-9,]/g, '');
             if (value.includes(',')) {
                 value = value.replace(',', '.');
@@ -248,18 +281,6 @@
             }
         });
     });
-
-    function confirmarAcao(id, acao) {
-        if (confirm(`Tem certeza que deseja ${acao} esta encomenda?`)) {
-            window.location.href = `{{ route('admin.encomendas.update', '') }}/${id}?acao=${acao}`;
-        }
-    }
-
-    function confirmarProduto(id) {
-        if (confirm('Confirmar recebimento/validade deste produto?')) {
-            window.location.href = `{{ route('admin.encomendas.confirmar-produto', '') }}/${id}`;
-        }
-    }
 </script>
 
 @if ($errors->any())
