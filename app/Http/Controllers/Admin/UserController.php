@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Log; // Certifique-se de importar o modelo Log
+use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,7 +13,9 @@ class UserController extends Controller
     {
         $users = User::all();
         return view('admin.users.list.index', ['data' => ['users' => $users]]);
-    }public function show()
+    }
+
+    public function show()
     {
         $users = User::all();
         return view('admin.users.list.index', ['data' => ['users' => $users]]);
@@ -26,26 +28,25 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users,email',
-            'password'      => 'required|string|min:8|confirmed',
-            'access_level'  => 'required|in:admin,manager,customer,seller',
+        $request->validate([
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email',
+            'password'     => 'required|string|min:8|confirmed',
+            'access_level' => 'required|in:admin,manager,customer,seller',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name'         => $request->name,
+            'email'        => $request->email,
+            'password'     => Hash::make($request->password),
             'access_level' => $request->access_level,
         ]);
 
-        // Log da criação
         Log::create([
-            'user_id' => auth()->id(),
-            'ip' => $request->ip(),
-            'accao' => 'Criação de Usuário',
-            'id_user' => $user->id,
+            'user_id'   => auth()->id(),
+            'ip'        => $request->ip(),
+            'accao'     => 'Criação de Usuário',
+            'id_user'   => $user->id,
             'descricao' => "Usuário {$user->name} (ID: {$user->id}) criado por " . auth()->user()->name,
         ]);
 
@@ -61,45 +62,45 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6|confirmed',
-            'access_level' => 'required|in:admin,user',
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email,' . $id,
+            'password'     => 'nullable|string|min:6|confirmed',
+            'access_level' => 'required|in:admin,manager,customer,seller',
         ]);
 
         $user = User::findOrFail($id);
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->password) {
+        $user->name         = $request->name;
+        $user->email        = $request->email;
+        $user->access_level = $request->access_level;
+
+        if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
-        $user->access_level = $request->access_level;
+
         $user->save();
 
-        // Log da atualização
         Log::create([
-            'user_id' => auth()->id(),
-            'ip' => $request->ip(),
-            'accao' => 'Atualização de Usuário',
-            'id_user' => $user->id,
+            'user_id'   => auth()->id(),
+            'ip'        => $request->ip(),
+            'accao'     => 'Atualização de Usuário',
+            'id_user'   => $user->id,
             'descricao' => "Usuário {$user->name} (ID: {$user->id}) atualizado por " . auth()->user()->name,
         ]);
 
-        return redirect()->back()->with('userAtualizado', 'Atualizado');
+        return redirect()->route('admin.gestao.usuarios')->with('userAtualizado', 'Atualizado');
     }
 
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        $userName = $user->name; // Armazena o nome antes de deletar
+        $user     = User::findOrFail($id);
+        $userName = $user->name;
         $user->delete();
 
-        // Log da exclusão
         Log::create([
-            'user_id' => auth()->id(),
-            'ip' => request()->ip(),
-            'accao' => 'Exclusão de Usuário',
-            'id_user' => $id,
+            'user_id'   => auth()->id(),
+            'ip'        => request()->ip(),
+            'accao'     => 'Exclusão de Usuário',
+            'id_user'   => $id,
             'descricao' => "Usuário {$userName} (ID: {$id}) excluído por " . auth()->user()->name,
         ]);
 
