@@ -159,4 +159,17 @@
             Swal.fire('Usuário', '{{ session('userRemovido') }} com sucesso!', 'success')
         </script>
     @endif
+    @if (session('userCadastrado') || session('userAtualizado') || session('userRemovido'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if (session('userCadastrado'))
+            Swal.fire({ icon: 'success', title: 'Utilizador', text: '{{ session('userCadastrado') }} com sucesso!' });
+        @elseif (session('userAtualizado'))
+            Swal.fire({ icon: 'success', title: 'Utilizador', text: '{{ session('userAtualizado') }} com sucesso!' });
+        @elseif (session('userRemovido'))
+            Swal.fire({ icon: 'success', title: 'Utilizador', text: '{{ session('userRemovido') }} com sucesso!' });
+        @endif
+    });
+</script>
+@endif
 @endsection
